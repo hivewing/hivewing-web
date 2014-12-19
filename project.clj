@@ -8,12 +8,14 @@
                  [compojure "1.3.1"]
                  [hiccup "1.0.5"]
                  [garden "1.2.5"]
+                 [hiccup-bridge "1.0.1"]
                 ]
 
   ;; We use the lein-ring plugin to start ring.
   :plugins [
             [lein-ring "0.8.13"]
             [lein-garden "0.2.5"]
+            [hiccup-bridge "1.0.1"]
             ]
 
   :hooks [leiningen.garden]
