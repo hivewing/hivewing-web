@@ -4,7 +4,7 @@
             [views.home :as home-views]
      ))
 
-(defn index [request]
+(defn index [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (layout/render (home-views/index))})
+   :body (layout/render req (home-views/index))})

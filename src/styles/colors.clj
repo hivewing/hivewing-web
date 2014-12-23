@@ -5,6 +5,7 @@
 
 (def light-text "#fefefe")
 (def primary "#AAAAAA")
+(def input-text "#AAAAAA")
 (def secondary "#767070")
 (def light-background "#EDEDED")
 (def solid-background "#555555")

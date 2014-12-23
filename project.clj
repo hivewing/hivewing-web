@@ -5,20 +5,30 @@
                  [org.clojure/clojure "1.6.0"]
                  [ring "1.3.2"]
                  [ring/ring-devel "1.3.2"]
+                 [ring/ring-defaults "0.1.3"]
                  [compojure "1.3.1"]
                  [hiccup "1.0.5"]
                  [garden "1.2.5"]
                  [hiccup-bridge "1.0.1"]
-                ]
+                 [lib-noir "0.9.5"]
+                 [com.taoensso/timbre "3.3.1"]
+                 [hivewing-core "0.1.3-SNAPSHOT"]]
 
   ;; We use the lein-ring plugin to start ring.
   :plugins [
+            [lein-environ "1.0.0"]
             [lein-ring "0.8.13"]
             [lein-garden "0.2.5"]
             [hiccup-bridge "1.0.1"]
+            [s3-wagon-private "1.1.2"]
             ]
 
   :hooks [leiningen.garden]
+
+  :repositories [["hivewing-core" {:url "s3p://clojars.hivewing.io/hivewing-core/releases"
+                                   :username "AKIAJCSUM5ZFGI7DW5PA"
+                                   :passphrase "UcO9VGAaGMRuJZbgZxCiz0XuHmB1J0uvzt7WIlJK"}]]
+
 
   :garden {:builds [{;; Optional name of the build:
                      :id "application"

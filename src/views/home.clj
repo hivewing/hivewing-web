@@ -10,6 +10,4 @@
           [:div.row
             [:div.col.s4 "Promo 1"]
             [:div.col.s4 "Promo 2"]
-            [:div.col.s4 "Promo 3"]
-            ]
-    )
+            [:div.col.s4 "Promo 3"]])

@@ -1,19 +1,28 @@
 (ns hivewing-web.server
   (:require
-    [compojure.core :refer :all]
-    [compojure.route :as route]
-    [ring.middleware.resource :as rmr]
-    [ring.middleware.file-info :as rmfi]
-    [hivewing-web.home-controller :as home]))
-
-(defroutes handler
-  "Route for Hivewing-Web!"
-  ;; Root Request
-  (GET "/" {:as request} (home/index request))
-
-  )
+    [ring.middleware.defaults :refer [site-defaults secure-site-defaults wrap-defaults]]
+    [ring.middleware.session.cookie :as rmsc]
+    [ring.middleware.flash :as rmf]
+    [hivewing-web.configuration :as config]
+    [noir.session :as nsession]
+    [hivewing-web.routes :refer [app-routes]]))
 
 (def app
-  (-> handler
-      (rmr/wrap-resource "public")
-      (rmfi/wrap-file-info)))
+  (let [app-defaults (assoc site-defaults
+            :session {
+                  :store (rmsc/cookie-store {:key config/cookie-key})
+                  :cookie-name "hivewing-session"
+                  :cookie-attrs {:max-age 3600}
+                  }
+            :responses {
+                  :absolute-redirects false
+                  :content-type true
+                  :not-modified-responses true
+                }
+                  )]
+      (->
+        (wrap-defaults
+            app-routes
+            app-defaults)
+        rmf/wrap-flash)
+    ))
