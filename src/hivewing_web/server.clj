@@ -10,6 +10,7 @@
 (def app
   (let [app-defaults (assoc site-defaults
             :session {
+                  :flash true
                   :store (rmsc/cookie-store {:key config/cookie-key})
                   :cookie-name "hivewing-session"
                   :cookie-attrs {:max-age 3600}

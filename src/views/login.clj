@@ -5,10 +5,10 @@
         hiccup.page
         hiccup.def))
 
-(defn login [action & errors]
-  (let [errors (apply hash-map errors)]
+(defn login [action return-to]
     [:form {:method "POST" :action action}
      (helpers/anti-forgery-field)
+     [:input {:type :hidden :name :return-to :value return-to}]
      [:div
         [:div.input-field
           [:input#user_email {:type "email" :placeholder "Email address" :name "user[email]"}]
@@ -20,4 +20,4 @@
           [:button {:type "submit"} "Login"]
         ]
       ]
-    ]))
+    ])

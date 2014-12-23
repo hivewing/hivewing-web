@@ -6,7 +6,7 @@
 (defn current-user
   "Gets the current user's uuid"
   [req]
-  (get-in req [:session current-user-key]))
+  (bk/beekeeper-get (get-in req [:session current-user-key])))
 
 (defn set-current-user
   "Set the current user uuid"

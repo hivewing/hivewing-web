@@ -10,7 +10,7 @@
   [req content & params-as-array]
   (let [
         logged-in? (sess/current-user req)
-        flash (:flash (:session req))
+        flash (:flash req)
         params (apply hash-map params-as-array)
         title  (or (:title params) "Hivewing.io")
         style  (or (:style params) :default)
