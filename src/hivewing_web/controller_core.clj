@@ -3,10 +3,11 @@
             [ring.util.request :as ring-request]
             [ring.util.response :as r]
             [ring.util.codec :as ring-codec]
+            [hivewing-web.system-controller :as system]
             [clojurewerkz.urly.core :as u]))
 
 ;; (pprint/pprint (macroexpand '(with-required-parameters req [happy gilmore] (println "yay"))))
-(defn build-redirect
+(defn build-redirect-missing-param
   [param]
     `(->
         (r/redirect "/")
@@ -17,12 +18,29 @@
   (let [let-values   (map #(list (keyword %1) (list :params request)) params-arr)
         let-bindings (vec (interleave params-arr let-values))
         conditions   (map #(list 'nil? %1) params-arr)
-        actions      (map build-redirect params-arr)
+        actions      (map build-redirect-missing-param params-arr)
         ]
     `(let ~let-bindings
       (cond ~@(interleave conditions actions)
         true (do ~@body))
         )))
+
+(comment
+  (macroexpand '(with-resources req [hive (hiveget hive)]))
+  (macroexpand '(with-resources req [hive (hive/hive-get hive-uuid)
+                     worker (and (worker/worker-in-hive? worker-uuid hive-uuid)
+                                 (worker/worker-get worker-uuid))]
+                  (println "OH")))
+  )
+
+(defmacro with-resources
+  [request let-bindings & body]
+  (let [values-to-test-for   (take-nth 2 let-bindings)]
+    `(let ~let-bindings
+      (if (and ~@values-to-test-for)
+        (do ~@body)
+        (system/not-found ~request)
+        ))))
 (comment
   (go-to "/applesauce" {:pig "feet"})
   (go-to "/applesauce?token=123" {:apple "sauce"})

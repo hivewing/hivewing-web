@@ -1,10 +1,8 @@
 (ns hivewing-web.system-controller
-  (:require [hivewing-web.session :as session]
-            [hivewing-web.controller-core :refer :all]
-            [hivewing-web.paths :as paths]
-            [ring.util.request :as ring-request]
+  (:require
+            ;; DO NOT INCLUDE THIS
+            ;;[hivewing-web.controller-core :refer :all]
             [ring.util.response :as r]
-            [environ.core  :refer [env]]
             [views.layout :as layout]
             [views.system :as system-views]
      ))

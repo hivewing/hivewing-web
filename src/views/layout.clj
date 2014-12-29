@@ -4,7 +4,38 @@
         hiccup.util
         hiccup.page
         hiccup.def))
+(comment
+  (def side-menu-data [{:text "a" :href "/"}])
+    (side-menu side-menu-data)
+    (html (side-menu-layout "Content" {:side-menu side-menu-data}))
+  )
 
+(defn side-menu
+  [menu-items back-link]
+    [:div.pure-menu.pure-menu-open.side-menu
+     (if back-link
+      [:a.pure-menu-heading {:href (:href back-link)}
+                [:span.fa.fa-chevron-left]
+                [:span (:text back-link)]])
+      [:ul
+        (map #(vector :li {:class (if (:selected? %) "pure-menu-selected" nil)} [:a {:href (:href %)} (:text %)]) menu-items)
+      ]
+     ]
+  )
+
+(defn side-menu-layout
+  [content params]
+  (let [side-menu-data   (:side-menu params)
+        back-link (:back-link params)]
+
+    [:div.side-menu-layout
+     (side-menu side-menu-data back-link)
+      [:div.side-menu-content.content
+        content
+      ]
+    ]
+    )
+  )
 
 (defn render
   [req content & params-as-array]
@@ -25,7 +56,7 @@
 
           "<!--  Purecss.io Copyright 2014 Yahoo! Inc. All rights reserved. -->"
           "<!--  Normalize.css Copyright (c) Nicolas Gallagher and Jonathan Neal -->"
-          [:link {:href "pure-release-0.5.0/pure.css"
+          [:link {:href "/pure-release-0.5.0/pure.css"
                   :rel  "stylesheet"
                   :type "text/css"}]
 
@@ -53,7 +84,7 @@
                 [:a {:href "/"} [:span.fa.fa-cogs]])
                (if logged-in?
                 [:a {:href "/logout"} [:span.fa.fa-sign-out]]
-                [:a {:href "/login"} [:button "Login" ]])
+                [:a.pure-button.pure-button-primary {:href "/login"} "Login" ])
               ]
               ]
              ]
@@ -62,7 +93,8 @@
               )
             [:div.content-wrapper
              (case style
-              :default [:div.default.content content]
+              :side-menu (side-menu-layout content params)
+              :default [:div.default.content content ]
               :single [:div.single.content
                        [:div.single-box content]])]
 

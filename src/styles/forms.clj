@@ -4,10 +4,6 @@
     [garden.def :refer [defrule defkeyframes]]
     [garden.units :refer [px]]))
 
-;(defkeyframes inputHighlighter
-;  [:from  { :background "purple" }
-;   :to    { :width 0, :background "transparent"}])
-
 (def form-inputs
   [:form
     {:padding (px 10)

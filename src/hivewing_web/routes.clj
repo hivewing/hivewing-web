@@ -1,9 +1,12 @@
 (ns hivewing-web.routes
     (:require [compojure.core :refer :all]
               [compojure.route :as route]
+              [hivewing-web.paths :as paths]
               [hivewing-web.home-controller :as home]
               [hivewing-web.apiary-controller :as apiary]
               [hivewing-web.system-controller :as system]
+              [hivewing-web.hive-controller :as hive]
+              [hivewing-web.worker-controller :as worker]
               [hivewing-web.login-controller :as login]))
 
 
@@ -25,9 +28,17 @@
   (GET  "/login" {:as req} (login/login req :post-to "/login"))
   (POST "/login" {:as req} (login/do-login req ))
   (GET  "/logout" {:as req} (login/logout req))
-  (GET  "/apiary" {:as req} (apiary/index req))
+  (GET  (paths/apiary-path) {:as req} (apiary/index req))
   (GET  "/apiary/join" {:as req} (apiary/join req :post-to "/apiary/join"))
   (POST "/apiary/join" {:as req} (apiary/do-join req))
+
+  (GET (paths/hive-path ":hive-uuid") {:as req } ( hive/status req))
+
+  (GET (paths/worker-path ":hive-uuid" ":worker-uuid") {:as req} (worker/status req))
+  (GET (paths/worker-manage-path ":hive-uuid" ":worker-uuid") {:as req} (worker/manage req))
+  (GET (paths/worker-config-path ":hive-uuid" ":worker-uuid") {:as req} (worker/config req))
+  (GET (paths/worker-data-path ":hive-uuid" ":worker-uuid") {:as req} (worker/data req))
+  (GET (paths/worker-logs-path ":hive-uuid" ":worker-uuid") {:as req} (worker/logs req))
 
   ; This is for when you have a new worker and want to add it
   ; individually to a selected hive / apiary.

@@ -16,12 +16,16 @@
             [clojure.pprint :as pprint]
      ))
 
-
 (defn index
   [req & args]
-  (let [args (apply hash-map args)]
+  (let [bk   (session/current-user req)
+        args (apply hash-map args)
+        hive-uuids (map :hive_uuid (hm/hive-managers-managing (:uuid bk)))
+        hives      (map #(hive/hive-get %) hive-uuids)]
     (->
-      (r/response (layout/render req (apiary-views/index)))
+      (r/response (layout/render req (apiary-views/index req hives)
+                                 :style :default
+                                ))
       (r/header "Content-Type" "text/html; charset=utf-8"))))
 
 (defn join
