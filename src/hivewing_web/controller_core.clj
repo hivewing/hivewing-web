@@ -36,13 +36,16 @@
   chain, from external points (from another page back to ours)"
   ([req path] (absolute-url-from-here req path {}))
   ([req path params]
-    (let [current-url (u/url-like (ring-request/request-url req))
-          host (u/host-of current-url)
-          port (u/port-of current-url)
-          scheme (u/protocol-of current-url)
-          query  (ring-codec/form-encode params)]
-      (str (-> (u/url-like (str scheme "://" host ":" port path))
-          (u/mutate-query query))))))
+   (let [current-url (u/url-like (ring-request/request-url req))
+         host (u/host-of current-url)
+         port (u/port-of current-url)
+         scheme (u/protocol-of current-url)
+         query  (ring.util.codec/form-encode params)
+
+         url-string (str scheme "://" host (if (> port 80) (str ":" port)) path)
+         ]
+     (str (-> (u/url-like url-string)
+            (u/mutate-query query))))))
 
 (defn go-to
   ([base-url] (go-to base-url {}))
