@@ -3,19 +3,31 @@
    [styles.colors :as colors]
    [styles.fonts :as fonts]
    [styles.buttons :as buttons]
+   [styles.flash :as flash]
+   [styles.helpers :as helpers]
    [styles.forms :as forms]
+   [styles.pure :as pure]
    [garden.def :refer [defstyles]]
    [garden.color :as color :refer [hsl rgb]]
    [garden.units :refer [px]]))
 
+(def footer-height (px 50))
 ; Basing on http://fezvrasta.github.io/bootstrap-material-design/bootstrap-elements.html
 (defstyles all
+  [:html {:height "100%"}]
   [:body
    {:font-family "Roboto Slab"
     :font-size (px 16)
     :line-height 1.5
     :padding 0
+    :background "url(/images/main-bg.png)"
+    :height "100%"
     :margin 0}]
+
+  [:div.body-wrapper {
+    :min-height "100%"
+    :position "relative"
+                      }]
   [:h1
    {:font-family "Dosis"
     :font-size (px 32)
@@ -61,12 +73,34 @@
             :border-top (str "2px" "solid" colors/solid-background)
             :color colors/secondary
             :padding [0 (px 10)]
-            :background colors/light-background} ]
-
-
+            :position "absolute"
+            :bottom 0
+            :left 0
+            :right 0
+            :line-height footer-height
+            :background "white"} ]
+  ;; Layouts
+  [:div.content-wrapper
+    {:padding-bottom footer-height}
+  ]
+  [:div.single.content
+   { :background "white"
+     :width "80%"
+     :min-width (px 300)
+     :max-width (px 500)
+     :margin "50px auto"
+     :box-shadow (str "0px 0px 4px " colors/box-shadow)
+    }]
   ; ----------------------
   ; Buttons
   ; ----------------------
+  helpers/all
+  flash/all
   buttons/all
   forms/form-inputs
+  pure/themed
+
+  [:div.not-found
+    { :padding (px 20) }
+   ]
   )

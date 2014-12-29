@@ -3,6 +3,7 @@
               [compojure.route :as route]
               [hivewing-web.home-controller :as home]
               [hivewing-web.apiary-controller :as apiary]
+              [hivewing-web.system-controller :as system]
               [hivewing-web.login-controller :as login]))
 
 
@@ -31,5 +32,5 @@
   ; This is for when you have a new worker and want to add it
   ; individually to a selected hive / apiary.
   ;(GET "/worker"
-  (route/not-found "<h1>Page not found</h1>")
+  (ANY "*" {:as req} (system/not-found req))
   )

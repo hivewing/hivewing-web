@@ -2,6 +2,7 @@
   (:require
             [ring.util.request :as ring-request]
             [ring.util.response :as r]
+            [ring.util.codec :as ring-codec]
             [clojurewerkz.urly.core :as u]))
 
 ;; (pprint/pprint (macroexpand '(with-required-parameters req [happy gilmore] (println "yay"))))
@@ -39,7 +40,7 @@
           host (u/host-of current-url)
           port (u/port-of current-url)
           scheme (u/protocol-of current-url)
-          query  (ring.util.codec/form-encode params)]
+          query  (ring-codec/form-encode params)]
       (str (-> (u/url-like (str scheme "://" host ":" port path))
           (u/mutate-query query))))))
 
@@ -48,9 +49,9 @@
   ([base-url added-params]
     (let [url (u/url-like base-url)
           current-query-str (or (u/query-of url))
-          current-query (if (empty? current-query-str) {} (ring.util.codec/form-decode current-query-str))
+          current-query (if (empty? current-query-str) {} (ring-codec/form-decode current-query-str))
           merged-query (merge current-query added-params)
-          new-query  (ring.util.codec/form-encode (merge current-query added-params))
+          new-query  (ring-codec/form-encode (merge current-query added-params))
           new-url (u/mutate-query url new-query)
           ]
       (r/redirect (str new-url))

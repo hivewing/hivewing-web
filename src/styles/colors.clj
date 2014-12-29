@@ -4,8 +4,10 @@
            [garden.units :refer [px]]))
 
 (def light-text "#fefefe")
+(def dark-text "#333")
 (def primary "#AAAAAA")
 (def input-text "#AAAAAA")
 (def secondary "#767070")
 (def light-background "#EDEDED")
-(def solid-background "#555555")
+(def solid-background "#525653")
+(def box-shadow light-background)

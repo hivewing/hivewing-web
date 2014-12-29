@@ -11,7 +11,6 @@
 (def form-inputs
   [:form
     {:padding (px 10)
-     :border (str "1px solid " colors/secondary)
      :margin (px 10)
      }
     [:input {

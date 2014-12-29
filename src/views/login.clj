@@ -6,18 +6,11 @@
         hiccup.def))
 
 (defn login [action return-to]
-    [:form {:method "POST" :action action}
+    [:form.pure-form.pure-form-stacked {:method "POST" :action action}
+     [:h1 "Login"]
      (helpers/anti-forgery-field)
      [:input {:type :hidden :name :return-to :value return-to}]
-     [:div
-        [:div.input-field
-          [:input#user_email {:type "email" :placeholder "Email address" :name "user[email]"}]
-        ]
-        [:div.input-field
-          [:input#user_password {:type "password" :placeholder "Password" :name "user[password]"}]
-        ]
-        [:div.controls
-          [:button {:type "submit"} "Login"]
-        ]
-      ]
+     [:input#user_email {:type "email" :placeholder "Email address" :name "user[email]"}]
+     [:input#user_password {:type "password" :placeholder "Password" :name "user[password]"}]
+     [:button.pure-button.pure-button-primary {:type "submit"} "Login"]
     ])

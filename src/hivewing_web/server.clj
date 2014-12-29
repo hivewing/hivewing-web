@@ -5,7 +5,8 @@
     [ring.middleware.flash :as rmf]
     [hivewing-web.configuration :as config]
     [noir.session :as nsession]
-    [hivewing-web.routes :refer [app-routes]]))
+    [hivewing-web.routes :refer [app-routes]])
+  (:gen-class))
 
 (def app
   (let [app-defaults (assoc site-defaults

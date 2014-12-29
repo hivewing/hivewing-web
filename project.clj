@@ -47,6 +47,8 @@
   :ring {:handler hivewing-web.server/app
          :port 3000}
 
-  :main ^:skip-aot hivewing-web.server
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :uberjar-name "hivewing-web-%s.uber.jar"
+  :main ^:skip-aot hivewing-web.server
+  :profiles {:uberjar {:aot :all}}
+  )
