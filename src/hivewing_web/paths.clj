@@ -3,6 +3,9 @@
 (defn apiary-path []
   "/apiary")
 
+(defn apiary-manage-path []
+  (str (apiary-path) "/manage"))
+
 (defn worker-path
   "Path for a worker"
   [hive-uuid worker-uuid]
@@ -17,3 +20,4 @@
 (defn hive-path
   [hive-uuid]
   (str "/hives/" hive-uuid))
+(defn hive-manage-path [hu] ( str (hive-path hu) "/manage"))

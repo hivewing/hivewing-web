@@ -6,13 +6,40 @@
         hiccup.page
         hiccup.def))
 
-(defn index
+(defn side-menu
+  [req current-page]
+  (vector
+    {:href (paths/apiary-path)
+     :selected? (= current-page :status)
+     :text "Apiary"}
+    {:href (paths/apiary-manage-path)
+     :selected? (= current-page :manage)
+      :text "Manage"}
+    ))
+
+
+(defn status
   [req hives]
   [:div.text-center
-    [:h1 "Your Apiaries!" ]
-    [:ul
-      (map #(vector :li [:a {:href (paths/hive-path (:uuid %))} (:name %)]) hives)]
+    [:h1 "Apiary"]
+    [:h2 "Hives"]
+    [:table.pure-table
+;      [:thead
+;        [:tr
+;          [:td {:colspan 2} "Hives" ]]]
+      (map
+        #(vector :tr
+                  [:td (:uuid %) ]
+                  [:td [:a {:href (paths/hive-path (:uuid %))} (:name %)]])
+        hives)
+      ]])
+
+(defn manage
+  [req]
+  [:div.text-center
+    [:h1 "Manage Your Apiary!" ]
     ])
+
 
 (defn join
   [action hives worker-url]

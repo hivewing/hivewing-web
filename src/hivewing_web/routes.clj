@@ -28,11 +28,13 @@
   (GET  "/login" {:as req} (login/login req :post-to "/login"))
   (POST "/login" {:as req} (login/do-login req ))
   (GET  "/logout" {:as req} (login/logout req))
-  (GET  (paths/apiary-path) {:as req} (apiary/index req))
+  (GET  (paths/apiary-path) {:as req} (apiary/status req))
+  (GET  (paths/apiary-manage-path) {:as req} (apiary/manage req))
   (GET  "/apiary/join" {:as req} (apiary/join req :post-to "/apiary/join"))
   (POST "/apiary/join" {:as req} (apiary/do-join req))
 
   (GET (paths/hive-path ":hive-uuid") {:as req } ( hive/status req))
+  (GET (paths/hive-manage-path ":hive-uuid") {:as req } ( hive/manage req))
 
   (GET (paths/worker-path ":hive-uuid" ":worker-uuid") {:as req} (worker/status req))
   (GET (paths/worker-manage-path ":hive-uuid" ":worker-uuid") {:as req} (worker/manage req))

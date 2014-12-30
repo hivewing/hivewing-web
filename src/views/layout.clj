@@ -18,7 +18,9 @@
                 [:span.fa.fa-chevron-left]
                 [:span (:text back-link)]])
       [:ul
-        (map #(vector :li {:class (if (:selected? %) "pure-menu-selected" nil)} [:a {:href (:href %)} (:text %)]) menu-items)
+        (map #(vector :li
+                      {:class (str (if (:disabled? %) "pure-button-disabled") (if (:selected? %) "pure-menu-selected" nil))}
+                      [:a {:href (if (:disabled? %) "#" (:href %))} (:text %)]) menu-items)
       ]
      ]
   )

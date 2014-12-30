@@ -1,5 +1,7 @@
 (ns hivewing-web.controller-core
   (:require
+    [clojure.pprint :as pprint]
+            [taoensso.timbre :as logger]
             [ring.util.request :as ring-request]
             [ring.util.response :as r]
             [ring.util.codec :as ring-codec]
@@ -26,21 +28,49 @@
         )))
 
 (comment
-  (macroexpand '(with-resources req [hive (hiveget hive)]))
-  (macroexpand '(with-resources req [hive (hive/hive-get hive-uuid)
+  (macroexpand '(with-preconditions req [hive (hiveget hive)]))
+  (pprint/pprint (macroexpand '(with-preconditions req [hive (hive/hive-get hive-uuid)
                      worker (and (worker/worker-in-hive? worker-uuid hive-uuid)
                                  (worker/worker-get worker-uuid))]
-                  (println "OH")))
+                  (println "OH"))))
   )
 
-(defmacro with-resources
+(defmacro with-preconditions
   [request let-bindings & body]
-  (let [values-to-test-for   (take-nth 2 let-bindings)]
+  (let [values-to-test-for   (take-nth 2 let-bindings)
+        names-to-test-for    (map str values-to-test-for) ]
     `(let ~let-bindings
+      (logger/info (str "Needs resources: " ~(clojure.string/join ", " (map str values-to-test-for))))
+
       (if (and ~@values-to-test-for)
         (do ~@body)
-        (system/not-found ~request)
+        (do
+          (logger/info "Failed to find all resources")
+
+          (doseq [[name# value#] ~(zipmap names-to-test-for values-to-test-for)]
+            (if (not value#)
+              (logger/info (str name# " is MISSING"))))
+          (system/not-found ~request))
         ))))
+
+(def content-types
+  "The content types and full headers that are responded"
+  {:html "text/html; charset=utf-8"})
+
+(defn
+  render
+  [body & opts]
+  (let [opts (apply hash-map opts)
+        status        (or (:status opts) 200)
+        content-type  (or (:content-type opts) :html)
+        ]
+    (-> (r/response body)
+        ;; Set the content type
+        (r/header "Content-Type" (content-type content-types))
+        )
+    ))
+
+
 (comment
   (go-to "/applesauce" {:pig "feet"})
   (go-to "/applesauce?token=123" {:apple "sauce"})

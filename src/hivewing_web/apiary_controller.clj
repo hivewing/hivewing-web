@@ -11,22 +11,31 @@
             [ring.util.response :as r]
             [environ.core  :refer [env]]
             [clojurewerkz.urly.core :as u]
-            [views.apiary :as apiary-views]
+            [views.apiary :as views]
             [views.layout :as layout]
             [clojure.pprint :as pprint]
      ))
 
-(defn index
+(defn status
   [req & args]
-  (let [bk   (session/current-user req)
-        args (apply hash-map args)
-        hive-uuids (map :hive_uuid (hm/hive-managers-managing (:uuid bk)))
-        hives      (map #(hive/hive-get %) hive-uuids)]
-    (->
-      (r/response (layout/render req (apiary-views/index req hives)
-                                 :style :default
-                                ))
-      (r/header "Content-Type" "text/html; charset=utf-8"))))
+  (with-preconditions req [bk         (session/current-user req)]
+    (let [ hive-uuids (map :hive_uuid (hm/hive-managers-managing (:uuid bk)))
+           hives      (map #(hive/hive-get %) hive-uuids)]
+      (render (layout/render req (views/status req hives)
+                                   :style :side-menu
+                                   :side-menu (views/side-menu req :status)
+                                  )))))
+(defn manage
+  [req & args]
+  (with-preconditions req [bk         (session/current-user req)]
+    (let [
+            hive-uuids (map :hive_uuid (hm/hive-managers-managing (:uuid bk)))
+            hives      (map #(hive/hive-get %) hive-uuids)
+          ]
+      (render (layout/render req (views/manage req)
+                                   :style :side-menu
+                                   :side-menu (views/side-menu req :manage)
+                                  )))))
 
 (defn join
   " worker-url is a query parameter that the system will return the user
@@ -51,7 +60,7 @@
               hives      (map #(hive/hive-get %) hive-uuids)
               ]
           (->
-            (r/response (layout/render req (apiary-views/join (:post-to args) hives worker-url)))
+            (r/response (layout/render req (views/join (:post-to args) hives worker-url)))
             (r/header "Content-Type" "text/html; charset=utf-8")))
         ; Not logged in, return to login, with a return to, to here.
         (login-and-return (ring-request/request-url req))))))
