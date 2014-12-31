@@ -138,4 +138,10 @@
   [:div.not-found
     { :padding (px 20) }
    ]
+
+  [:span.header-sub
+    {:font-weight 100
+    :margin (px 10)
+    }
+   ]
   )

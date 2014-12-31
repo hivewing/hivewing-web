@@ -174,3 +174,8 @@ form input {
 div.not-found {
   padding: 20px;
 }
+
+span.header-sub {
+  margin: 10px;
+  font-weight: 100;
+}

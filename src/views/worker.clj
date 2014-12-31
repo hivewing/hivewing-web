@@ -1,5 +1,8 @@
 (ns views.worker
   (:require [views.helpers :as helpers]
+            [clojurewerkz.urly.core :as u]
+            [clojure.data.json :as json]
+            [ring.util.codec :as ring-codec]
             [hivewing-web.paths :as paths])
   (:use hiccup.core
         hiccup.util
@@ -7,7 +10,7 @@
         hiccup.def))
 
 (defn side-menu
-  [req current-page ]
+  [req current-page can-manage?]
   (let [wu (:worker-uuid (:params req))
         hu (:hive-uuid (:params req))]
     (vector
@@ -16,6 +19,7 @@
         :text "Status"}
       {:href (paths/worker-manage-path hu wu)
         :selected? (= current-page :manage)
+        :disabled? (not can-manage?)
         :text "Manage"}
       {:href (paths/worker-config-path hu wu)
         :selected? (= current-page :config)
@@ -28,9 +32,42 @@
         :text "Logs"}
       )))
 
-(defn status [req]
-  [:div.text-center
-    [:h1 "Worker status"]])
+(defn hive-image-ref [image-url]
+  (if (empty? image-url)
+    "unknown"
+    (let [url (u/url-like image-url)
+          query-str (or (u/query-of url))
+          query (if (empty? query-str) {} (ring-codec/form-decode query-str))
+          ref (:ref (query))]
+      (if (clojure.string/blank? ref) "unknown" ref))))
+
+(defn worker-tasks-to-array
+  [worker-config]
+    (let [tasks-str (get ".tasks" worker-config)]
+      (if (clojure.string/blank? tasks-str)
+        []
+        (json/read-str tasks-str))))
+
+(defn status [req hive worker worker-config]
+  (let [tasks (worker-tasks-to-array worker-config)]
+    [:div
+      [:h1 "Status"]
+
+      [:div.data-listing
+        [:h3 "Name"]
+        [:span (:name worker)]
+        [:h3 "Hive Image Ref"
+          [:span.header-sub "configured / current"]]
+        [:span (hive-image-ref (get ".hive-image" worker-config))]
+        [:span "/"]
+        [:span (hive-image-ref (get ".hive-image-current" worker-config))]
+        [:h3 "Tasks"]
+        [:table.pure-table.pure-u-1-1
+          (if (empty? tasks)
+            [:tr [:td "None"]]
+            (map #(vector :tr [:td %]) tasks))
+         ]
+       ]]))
 
 (defn manage [req]
   [:div.text-center

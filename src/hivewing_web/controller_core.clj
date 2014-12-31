@@ -1,12 +1,13 @@
 (ns hivewing-web.controller-core
   (:require
     [clojure.pprint :as pprint]
-            [taoensso.timbre :as logger]
-            [ring.util.request :as ring-request]
-            [ring.util.response :as r]
-            [ring.util.codec :as ring-codec]
-            [hivewing-web.system-controller :as system]
-            [clojurewerkz.urly.core :as u]))
+    [hivewing-web.session :as session]
+    [taoensso.timbre :as logger]
+    [ring.util.request :as ring-request]
+    [ring.util.response :as r]
+    [ring.util.codec :as ring-codec]
+    [hivewing-web.system-controller :as system]
+    [clojurewerkz.urly.core :as u]))
 
 ;; (pprint/pprint (macroexpand '(with-required-parameters req [happy gilmore] (println "yay"))))
 (defn build-redirect-missing-param
@@ -33,7 +34,15 @@
                      worker (and (worker/worker-in-hive? worker-uuid hive-uuid)
                                  (worker/worker-get worker-uuid))]
                   (println "OH"))))
+  (pprint/pprint (macroexpand '(with-beekeeper req bk (println "hi"))))
   )
+
+(defmacro with-beekeeper
+  [req beekeeper & body]
+  `(let [~beekeeper (session/current-user ~req)]
+      (if ~beekeeper
+        ~@body
+        (login-and-return (ring-request/request-url ~req)))))
 
 (defmacro with-preconditions
   [request let-bindings & body]

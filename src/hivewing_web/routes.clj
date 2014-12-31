@@ -9,7 +9,6 @@
               [hivewing-web.worker-controller :as worker]
               [hivewing-web.login-controller :as login]))
 
-
 ; TODO
   ; Want to have "requires-beekeeper" routes
   ; Put them into their own block

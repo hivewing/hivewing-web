@@ -16,23 +16,24 @@
   (hive/hive-can-modify? bk hive-uuid )
   (hm/hive-managers-managing bk)
   )
+
 (defn status
   [req & args]
-  (with-required-parameters req [hive-uuid]
-    (with-preconditions req [
-          bk            (session/current-user req)
-          access?       (hive/hive-can-read? (:uuid bk) hive-uuid)
-          hive          (hive/hive-get hive-uuid)
-          worker-uuids  (worker/worker-list hive-uuid :page 1 :per-page 500)
-          workers       (map #(worker/worker-get (:uuid %)) worker-uuids)
-        ]
-      (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
-        (render (layout/render req (views/status req hive workers can-manage?)
-                                      :style :side-menu
-                                      :side-menu (views/side-menu req :status can-manage?)
-                                      :back-link { :href (paths/apiary-path)
-                                                   :text "Apiary" }
-                                  ))))))
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid]
+      (with-preconditions req [
+            hive          (hive/hive-get hive-uuid)
+            access?       (hive/hive-can-read? (:uuid bk) hive-uuid)
+            worker-uuids  (worker/worker-list hive-uuid :page 1 :per-page 500)
+            workers       (map #(worker/worker-get (:uuid %)) worker-uuids)
+          ]
+        (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+          (render (layout/render req (views/status req hive workers can-manage?)
+                                        :style :side-menu
+                                        :side-menu (views/side-menu req :status can-manage?)
+                                        :back-link { :href (paths/apiary-path)
+                                                     :text "Apiary" }
+                                    )))))))
 
 
 (defn manage
