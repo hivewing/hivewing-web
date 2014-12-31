@@ -7,4 +7,4 @@
     (env :hivewing-web-cookie-key)
     (do
       (logger/warn "WARN. hivwing-web-cookie-key NOT set")
-      "HIVEWING_COOKIE_KEY")))
+      "1234567890123456")))
