@@ -43,17 +43,13 @@
 
 (defn join
   [action hives worker-url]
-  [:form {:method "POST" :action action}
+  [:form.pure-form.pure-form-stacked {:method "POST" :action action}
+   [:h1 "Create a Worker"]
    (helpers/anti-forgery-field)
    [:input {:type :hidden :name :worker-url :value worker-url}]
-   [:div
-      [:div.input-field
-        [:label "Select the hive"]
-        [:select {:name "hive-uuid"}
-          (map #(vector :option {:value (:uuid %)} (:name %)) hives)]
-      ]
-      [:div.controls
-        [:button {:type "submit"} "Add Worker To Hive"]
-      ]
-    ]
+   [:label "Worker Name"]
+   [:input {:type :text :name :worker-name :placeholder "Optional"}]
+   [:label "Select the hive"]
+   [:select {:name "hive-uuid"} (map #(vector :option {:value (:uuid %)} (:name %)) hives)]
+   [:button.pure-button.pure-button-primary {:type "submit"} "Add Worker To Hive"]
   ])

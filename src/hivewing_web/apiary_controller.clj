@@ -53,6 +53,7 @@
         bk   (session/current-user req)
        ]
 
+  (with-preconditions req [bk         (session/current-user req)]
     (with-required-parameters req [worker-url]
       ;; If you're logged in...
       (if bk
@@ -60,10 +61,10 @@
               hives      (map #(hive/hive-get %) hive-uuids)
               ]
           (->
-            (r/response (layout/render req (views/join (:post-to args) hives worker-url)))
+            (r/response (layout/render req (views/join (:post-to args) hives worker-url) :style :single))
             (r/header "Content-Type" "text/html; charset=utf-8")))
         ; Not logged in, return to login, with a return to, to here.
-        (login-and-return (ring-request/request-url req))))))
+        (login-and-return (ring-request/request-url req)))))))
 
 (defn do-join
   "This is the active part of joining a worker to a hive
@@ -83,7 +84,8 @@
       (if (and bk allowed?)
         ; Joining
         (let [apiary (apiary/apiary-find-by-beekeeper (:uuid bk))
-              worker (worker/worker-create {:apiary_uuid (:uuid apiary) :hive_uuid hive-uuid})
+              provided-worker-name (:worker-name (:params req))
+              worker (worker/worker-create {:name provided-worker-name :apiary_uuid (:uuid apiary) :hive_uuid hive-uuid})
               access-token (:access_token (worker/worker-get (:uuid worker) :include-access-token true))
               dest-url (absolute-url-from-here req
                                                (paths/worker-path (:uuid worker) hive-uuid))
