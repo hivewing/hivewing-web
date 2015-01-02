@@ -23,9 +23,13 @@
   [req hive workers can-manage?]
   [:div
     [:h1 (:name hive) ]
-    [:ul
-      (map #(vector :li [:a {:href (paths/worker-path (:uuid hive) (:uuid %))} (:name %)]) workers)]
-    ])
+    [:h2 "Workers"]
+    [:table.pure-table
+      (map
+        #(vector :tr
+                  [:td [:a {:href (paths/worker-path (:uuid hive) (:uuid %))} (:name %)]])
+        workers)]
+  ])
 
 (defn manage
   [req hive]

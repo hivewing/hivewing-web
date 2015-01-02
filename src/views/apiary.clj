@@ -24,12 +24,8 @@
     [:h1 "Apiary"]
     [:h2 "Hives"]
     [:table.pure-table
-;      [:thead
-;        [:tr
-;          [:td {:colspan 2} "Hives" ]]]
       (map
         #(vector :tr
-                  [:td (:uuid %) ]
                   [:td [:a {:href (paths/hive-path (:uuid %))} (:name %)]])
         hives)
       ]])

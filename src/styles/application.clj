@@ -107,14 +107,12 @@
         [".fa.fa-chevron-left" { :position "relative" :left "-5px" }]]
 
        {
-        :position :fixed
+        :position :absolute
         :left "0px"
-        :top (css-arith/+ header-height 4)
+        :top 0
         :width (px 200)
         :background colors/light-background
-        ;:color colors/light-text
         :border 0
-        :bottom (css-arith/+ footer-height (px 2))
        }
       ]
    ]
