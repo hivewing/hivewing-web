@@ -49,11 +49,9 @@
     http://local-worker/setup?detail1=a&worker-uuid=123&access-token=345
   "
   [req & args]
-  (let [args (apply hash-map args)
-        bk   (session/current-user req)
-       ]
+  (let [args (apply hash-map args) ]
 
-  (with-preconditions req [bk         (session/current-user req)]
+  (with-beekeeper req bk
     (with-required-parameters req [worker-url]
       ;; If you're logged in...
       (if bk
@@ -80,19 +78,20 @@
         allowed? (hive/hive-can-modify? (:uuid bk) hive-uuid)
         ]
 
-    (with-required-parameters req [worker-url]
-      (if (and bk allowed?)
-        ; Joining
-        (let [apiary (apiary/apiary-find-by-beekeeper (:uuid bk))
-              provided-worker-name (:worker-name (:params req))
-              worker (worker/worker-create {:name provided-worker-name :apiary_uuid (:uuid apiary) :hive_uuid hive-uuid})
-              access-token (:access_token (worker/worker-get (:uuid worker) :include-access-token true))
-              dest-url (absolute-url-from-here req
-                                               (paths/worker-path (:uuid worker) hive-uuid))
-              ]
-            ; redirect things to the worker-url now. With these new params
-            (go-to worker-url {:worker-uuid (:uuid worker)
-                               :access-token access-token
-                               :return-to dest-url}))
-        ; Not logged in, return to login, with a return to, to here.
-        (login-and-return)))))
+    (with-beekeeper req bk
+      (with-required-parameters req [worker-url]
+        (if (and bk allowed?)
+          ; Joining
+          (let [apiary (apiary/apiary-find-by-beekeeper (:uuid bk))
+                provided-worker-name (:worker-name (:params req))
+                worker (worker/worker-create {:name provided-worker-name :apiary_uuid (:uuid apiary) :hive_uuid hive-uuid})
+                access-token (:access_token (worker/worker-get (:uuid worker) :include-access-token true))
+                dest-url (absolute-url-from-here req
+                                                 (paths/worker-path (:uuid worker) hive-uuid))
+                ]
+              ; redirect things to the worker-url now. With these new params
+              (go-to worker-url {:worker-uuid (:uuid worker)
+                                 :access-token access-token
+                                 :return-to dest-url}))
+          ; Not logged in, return to login, with a return to, to here.
+          (login-and-return))))))

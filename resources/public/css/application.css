@@ -94,13 +94,12 @@ div.side-menu-layout div.side-menu-content h1 {
 }
 
 div.side-menu-layout div.side-menu {
-  bottom: 52px;
   border: 0;
   background: #EDEDED;
   width: 200px;
-  top: 54px;
+  top: 0;
   left: 0px;
-  position: fixed;
+  position: absolute;
 }
 
 div.side-menu-layout div.side-menu .pure-menu-heading {
