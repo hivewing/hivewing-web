@@ -57,9 +57,9 @@
         [:span (:name worker)]
         [:h3 "Hive Image Ref"
           [:span.header-sub "configured / current"]]
-        [:span (hive-image-ref (get ".hive-image" worker-config))]
-        [:span "/"]
-        [:span (hive-image-ref (get ".hive-image-current" worker-config))]
+        [:span (hive-image-ref (get worker-config ".hive-image" ))]
+        [:span "  /  "]
+        [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
         [:h3 "Tasks"]
         [:table.pure-table.pure-u-1-1
           (if (empty? tasks)
