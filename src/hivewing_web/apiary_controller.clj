@@ -87,7 +87,7 @@
                 worker (worker/worker-create {:name provided-worker-name :apiary_uuid (:uuid apiary) :hive_uuid hive-uuid})
                 access-token (:access_token (worker/worker-get (:uuid worker) :include-access-token true))
                 dest-url (absolute-url-from-here req
-                                                 (paths/worker-path (:uuid worker) hive-uuid))
+                                                 (paths/worker-path hive-uuid (:uuid worker)))
                 ]
               ; redirect things to the worker-url now. With these new params
               (go-to worker-url {:worker-uuid (:uuid worker)

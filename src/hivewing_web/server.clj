@@ -4,9 +4,7 @@
     [ring.middleware.session.cookie :as rmsc]
     [ring.middleware.flash :as rmf]
     [hivewing-web.configuration :as config]
-    [ring.adapter.jetty :as jetty]
-    [hivewing-web.routes :refer [app-routes]])
-  (:gen-class))
+    [hivewing-web.routes :refer [app-routes]]))
 
 (def app
   (let [app-defaults (assoc site-defaults
@@ -28,6 +26,3 @@
             app-defaults)
         rmf/wrap-flash)
     ))
-
-(defn -main []
-  (jetty/run-jetty app {:port 3000}))

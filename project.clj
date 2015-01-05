@@ -47,6 +47,6 @@
   :ring {:handler hivewing-web.server/app }
   :uberjar-name "hivewing-web-%s.uber.jar"
 
-  :main ^:skip-aot hivewing-web.server
+  :main hivewing-web.core
   ;:profiles {:uberjar {:aot :all}}
   )
