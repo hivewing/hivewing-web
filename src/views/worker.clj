@@ -36,10 +36,9 @@
   (if (empty? image-url)
     "unknown"
     (let [url (u/url-like image-url)
-          query-str (or (u/query-of url))
-          query (if (empty? query-str) {} (ring-codec/form-decode query-str))
-          ref (:ref (query))]
-      (if (clojure.string/blank? ref) "unknown" ref))))
+          path-str (or (u/path-of url) "unknown/unknown")
+          ref (last (clojure.string/split path-str #"\/"))]
+      ref)))
 
 (defn worker-tasks-to-array
   [worker-config]
