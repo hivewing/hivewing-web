@@ -66,8 +66,7 @@
   "The content types and full headers that are responded"
   {:html "text/html; charset=utf-8"})
 
-(defn
-  render
+(defn render
   [body & opts]
   (let [opts (apply hash-map opts)
         status        (or (:status opts) 200)
@@ -104,18 +103,27 @@
      (str (-> (u/url-like url-string)
             (u/mutate-query query))))))
 
+(defn same-url-with-new-params
+  [base-url added-params]
+  (let [url (u/url-like base-url)
+        current-query-str (or (u/query-of url))
+        current-query (if (empty? current-query-str) {} (clojure.walk/keywordize-keys (ring-codec/form-decode current-query-str)))
+        merged-query (merge (clojure.walk/keywordize-keys current-query )
+                            (clojure.walk/keywordize-keys added-params)
+                            ;; Get rid of these ALWAYS
+                            {:__anti-forgery-token nil})
+
+        merged-query (into {} (filter (comp not nil? val) merged-query))
+        new-query  (ring-codec/form-encode merged-query)
+        new-url (u/mutate-query url new-query)
+        ]
+    (str new-url)))
+
 (defn go-to
   ([base-url] (go-to base-url {}))
   ([base-url added-params]
-    (let [url (u/url-like base-url)
-          current-query-str (or (u/query-of url))
-          current-query (if (empty? current-query-str) {} (ring-codec/form-decode current-query-str))
-          merged-query (merge current-query added-params)
-          new-query  (ring-codec/form-encode (merge current-query added-params))
-          new-url (u/mutate-query url new-query)
-          ]
-      (r/redirect (str new-url))
-      )))
+    (let [url (same-url-with-new-params base-url added-params)]
+      (r/redirect url))))
 
 (defn login-and-return
   ([] (go-to "/login"))

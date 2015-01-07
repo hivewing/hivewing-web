@@ -1,5 +1,6 @@
 (ns styles.application
  (:require
+   [styles.worker :as worker]
    [styles.colors :as colors]
    [styles.fonts :as fonts]
    [styles.buttons :as buttons]
@@ -132,6 +133,7 @@
   buttons/all
   forms/all
   pure/themed
+  worker/all
 
   [:div.not-found
     { :padding (px 20) }

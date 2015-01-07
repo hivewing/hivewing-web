@@ -2,6 +2,9 @@
   (:require [views.helpers :as helpers]
             [clojurewerkz.urly.core :as u]
             [clojure.data.json :as json]
+            [ring.util.request :as ring-request]
+            [hivewing-web.controller-core :as controller-core]
+            [clj-time.coerce :as ctimec]
             [ring.util.codec :as ring-codec]
             [hivewing-web.paths :as paths])
   (:use hiccup.core
@@ -47,7 +50,7 @@
         []
         (json/read-str tasks-str))))
 
-(defn status [req hive worker worker-config tasks]
+(defn status [req hive worker worker-config tasks system-worker-logs]
   [:div
     [:h1 "Status"]
 
@@ -64,6 +67,11 @@
         (if (empty? tasks)
           [:tr [:td "None"]]
           (map #(vector :tr [:td %]) tasks))
+       ]
+
+      [:h3 "System Logs"]
+      [:table.pure-table.pure-u-1-1
+        (map #(vector :tr [:td (:at %)] [:td (:message %)]) system-worker-logs)
        ]
      ]])
 
@@ -146,6 +154,48 @@
   [:div.text-center
     [:h1 "Worker data"]])
 
-(defn logs [req]
-  [:div.text-center
-    [:h1 "Worker logs"]])
+(defn render-worker-log
+  [log]
+    (vector :tr
+            [:td (str (:at log))]
+            [:td (str (:message log))]))
+
+(comment
+  (def current-url "http://localhost:8000/hives/12345678-1234-1234-1234-123456789012/workers/2a04f8e4-96bd-11e4-a761-0242ac11038c/logs?worker-logs-start=1420672137500&worker-logs-task=*ALL*&__anti-forgery-token=UHDJut0UKdeNtR3v4nDOkeWIUk1tnpWA+mOZKc0Dov%252FrYRmHA%252F7nqjPZ+oRo7OFMRRK829EINL7hBE5E")
+  (if start-at (controller-core/same-url-with-new-params current-url {:worker-logs-start nil}) nil)
+  )
+
+
+(defn logs [req current-task start-at tasks log-messages]
+
+  (let [current-url (ring-request/request-url req)
+        rewind-link (if start-at (controller-core/same-url-with-new-params current-url {:worker-logs-start nil}) nil)
+        next-start-at (ctimec/to-long (:at (last log-messages)))
+        next-link (controller-core/same-url-with-new-params current-url {:worker-logs-start next-start-at})
+        ]
+    [:div.worker-logs
+      [:h1 "Logs"]
+
+      [:form.pure-form.unpadded.right
+        (helpers/anti-forgery-field)
+        [:select {:name "worker-logs-task"}
+          [:option {:selected (nil? current-task) :value "*ALL*"} "All Tasks"]
+          (map #(vector :option {:selected (= current-task %1) :value %1} %1) tasks)
+         ]
+        [:input.pure-button {:type :submit :value "Filter"}]
+      ]
+      [:div.left
+        [:div.navigation
+          (if rewind-link
+            [:a.pure-button {:href rewind-link} "Reset"])
+          [:a.pure-button {:href next-link} "Next"]
+        ]
+        [:h3 (str "Logs start from: " start-at)]]
+
+      (if (empty? log-messages)
+         [:h3 "No Log Messages"])
+      [:table.logs.pure-table.pure-table-striped-horizontal.pure-table-striped.pure-u-1-1
+        [:tbody
+
+          (map render-worker-log log-messages)
+        ]]]))

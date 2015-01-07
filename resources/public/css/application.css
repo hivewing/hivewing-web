@@ -126,6 +126,14 @@ div.single.content {
   text-align: center;
 }
 
+.right {
+  text-align: right;
+}
+
+.left {
+  text-align: left;
+}
+
 div.flash {
   border-bottom: 2px solid #525653;
   color: #333;
@@ -173,6 +181,18 @@ form.unpadded {
 
 .pure-menu li:hover, .pure-menu li a:hover, .pure-menu li.pure-menu-selected {
   background-color: #AAAAAA;
+}
+
+.worker-logs form .pure-button {
+  margin: 5px;
+}
+
+.worker-logs .navigation {
+  float: right;
+}
+
+.worker-logs .navigation .pure-button {
+  margin: 5px;
 }
 
 div.not-found {
