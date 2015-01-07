@@ -17,7 +17,8 @@
                                worker-in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker          (worker/worker-get worker-uuid)
                                worker-config   (worker-config/worker-config-get worker-uuid :include-system-keys true)
-                               tasks   (worker-config/worker-config-get-tasks worker-uuid)]
+                               tasks   (or (worker-config/worker-config-get-tasks worker-uuid) [])
+                               ]
 
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (-> (r/response
@@ -90,7 +91,7 @@
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker (worker/worker-get worker-uuid)
                                worker-config   (worker-config/worker-config-get worker-uuid)
-                               tasks   (worker-config/worker-config-get-tasks worker-uuid)
+                               tasks   (or (worker-config/worker-config-get-tasks worker-uuid) [])
                                ]
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req
