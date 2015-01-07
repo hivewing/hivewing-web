@@ -16,12 +16,13 @@
                                hive            (hive/hive-get hive-uuid)
                                worker-in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker          (worker/worker-get worker-uuid)
-                               worker-config   (worker-config/worker-config-get worker-uuid :include-system-keys true)]
+                               worker-config   (worker-config/worker-config-get worker-uuid :include-system-keys true)
+                               tasks   (worker-config/worker-config-get-tasks worker-uuid)]
 
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (-> (r/response
               (layout/render req
-                             (views/status req hive worker worker-config)
+                             (views/status req hive worker worker-config tasks)
                              :style :side-menu
                              :side-menu (views/side-menu req :status can-manage?)
                              :back-link { :href (paths/hive-path hive-uuid)
@@ -43,16 +44,57 @@
                            :back-link { :href (paths/hive-path hive-uuid)
                                         :text "Hive"})))))))
 
+(defn create-config
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid worker-config-key worker-config-value worker-config-task]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+
+        (do
+          (worker-config/worker-config-set worker-uuid (hash-map (clojure.string/join "." (vector worker-config-task worker-config-key) ) worker-config-value))
+          (r/redirect (paths/worker-config-path hive-uuid worker-uuid)))))))
+
+(defn update-config
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid worker-config-key worker-config-value]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+        (do
+          (worker-config/worker-config-set worker-uuid (hash-map worker-config-key worker-config-value))
+          (r/redirect (paths/worker-config-path hive-uuid worker-uuid)))))))
+
+(defn delete-config
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid worker-config-key]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+
+        (do
+          (worker-config/worker-config-set worker-uuid (hash-map worker-config-key nil))
+          (r/redirect (paths/worker-config-path hive-uuid worker-uuid)))))))
+
 (defn config
   [req & args]
   (with-beekeeper req bk
     (with-required-parameters req [hive-uuid worker-uuid]
       (with-preconditions req [hive (hive/hive-get hive-uuid)
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
-                               worker (worker/worker-get worker-uuid)]
+                               worker (worker/worker-get worker-uuid)
+                               worker-config   (worker-config/worker-config-get worker-uuid)
+                               tasks   (worker-config/worker-config-get-tasks worker-uuid)
+                               ]
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req
-                         (views/config req )
+                         (views/config req hive worker tasks worker-config can-manage? )
                          :style :side-menu
                          :side-menu (views/side-menu req :config can-manage?)
                          :back-link { :href (paths/hive-path hive-uuid)

@@ -7,8 +7,7 @@
 (def form-inputs
   [:form
     {:padding (px 10)
-     :margin (px 10)
-     }
+     :margin (px 10)}
     [:input {
               :line-height (px 16)
               :font-size (px 16)
@@ -16,3 +15,9 @@
               :color colors/input-text
              }]
    ])
+
+(def all
+  [ form-inputs
+    [:form.unpadded {:margin 0 :padding 0}]
+    ]
+  )

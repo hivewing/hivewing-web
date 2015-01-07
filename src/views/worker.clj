@@ -47,34 +47,100 @@
         []
         (json/read-str tasks-str))))
 
-(defn status [req hive worker worker-config]
-  (let [tasks (worker-tasks-to-array worker-config)]
-    [:div
-      [:h1 "Status"]
+(defn status [req hive worker worker-config tasks]
+  [:div
+    [:h1 "Status"]
 
-      [:div.data-listing
-        [:h3 "Name"]
-        [:span (:name worker)]
-        [:h3 "Hive Image Ref"
-          [:span.header-sub "configured / current"]]
-        [:span (hive-image-ref (get worker-config ".hive-image" ))]
-        [:span "  /  "]
-        [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
-        [:h3 "Tasks"]
-        [:table.pure-table.pure-u-1-1
-          (if (empty? tasks)
-            [:tr [:td "None"]]
-            (map #(vector :tr [:td %]) tasks))
-         ]
-       ]]))
+    [:div.data-listing
+      [:h3 "Name"]
+      [:span (:name worker)]
+      [:h3 "Hive Image Ref"
+        [:span.header-sub "configured / current"]]
+      [:span (hive-image-ref (get worker-config ".hive-image" ))]
+      [:span "  /  "]
+      [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
+      [:h3 "Tasks"]
+      [:table.pure-table.pure-u-1-1
+        (if (empty? tasks)
+          [:tr [:td "None"]]
+          (map #(vector :tr [:td %]) tasks))
+       ]
+     ]])
 
 (defn manage [req]
   [:div.text-center
     [:h1 "Worker manage"]])
 
-(defn config [req]
-  [:div.text-center
-    [:h1 "Worker config"]])
+(defn split-config-name
+  "Splits a config key into the task and config name."
+  [config-key]
+  (let [splits (clojure.string/split config-key #"\.")
+        cfg-name   (last splits)
+        task   (clojure.string/join "." (drop-last 1 splits))
+        ]
+    [task cfg-name]))
+
+(defn render-config-row
+  [[k v] hive worker can-manage?]
+
+  (let [[task name] (split-config-name k)]
+    (vector :tr
+           [:td task]
+           [:td name]
+           [:td
+              [:form.unpadded
+                {:method "post" :action (paths/worker-config-update-path (:uuid hive) (:uuid worker))}
+                (helpers/anti-forgery-field)
+                [:input {:type :hidden :name :worker-config-key :value k}]
+                [:input.pure-u-1-1 {:type :text :name :worker-config-value :value v}]
+                [:input.pure-button.pure-u-1-1 {:type :submit :value "Update" :style "display: none"}]
+                ]
+            ]
+           [:td
+            (if can-manage?
+              (vector :form.unpadded
+                      {:method "post" :action (paths/worker-config-delete-path (:uuid hive) (:uuid worker))}
+                      (helpers/anti-forgery-field)
+                      [:input {:type :hidden :name :worker-config-key :value k}]
+                      [:input.pure-button.pure-u-1-1 {:type :submit :value "Delete"}])
+              "&nbsp;")])))
+
+(defn config [req hive worker tasks worker-config can-manage?]
+  [:div
+    [:h1 "Config"]
+    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:thead
+        [:tr
+          [:th "Task"]
+          [:th "Name"]
+          [:th "Value"]
+          [:th "&nbsp;"]
+         ]
+      ]
+      [:tbody
+        (if can-manage?
+          [:tr
+            [:form.unpadded {:method "post" :action (paths/worker-config-path (:uuid hive) (:uuid worker))}
+              (helpers/anti-forgery-field)
+              [:td
+                 [:select {:name "worker-config-task" :required :required}
+                    (map #(vector :option {:value %} %) tasks)
+                  ]
+              ]
+              [:td
+                 [:input.pure-u-1-1 {:type :text :required :required :name "worker-config-key" :pattern "[a-zA-Z_\\-0-9]+" :title "Worker config key.  0-9A-Za-z _ - " :placeholder "New Worker Config"}] ]
+              [:td
+                 [:input.pure-u-1-1 {:type :text :required :required :name "worker-config-value" :placeholder "New Worker Value"}] ]
+              [:td
+                 [:input.pure-button.pure-button-primary.pure-u-1-1 {:type :submit :value "Create"}] ]
+             ]
+           ])
+        [:tr [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] ]
+        (map #(render-config-row % hive worker can-manage?) (sort-by first (map identity worker-config)))
+      ]
+    ]
+  ]
+  )
 
 (defn data [req]
   [:div.text-center

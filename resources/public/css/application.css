@@ -161,6 +161,11 @@ form input {
   line-height: 16px;
 }
 
+form.unpadded {
+  margin: 0;
+  padding: 0;
+}
+
 .pure-button-primary, .pure-button-selected, a.pure-button-primary, a.pure-button-selected {
   color: #fff;
   background-color: #AAAAAA;

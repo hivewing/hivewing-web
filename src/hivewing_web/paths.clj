@@ -1,4 +1,6 @@
-(ns hivewing-web.paths)
+(ns hivewing-web.paths
+  (:require [ring.util.codec :as ring-codec]
+            ))
 
 (defn apiary-path []
   "/apiary")
@@ -14,6 +16,9 @@
 (defn worker-status-path [hu wu] (str (worker-path hu wu)))
 (defn worker-manage-path [hu wu] (str (worker-path hu wu) "/manage"))
 (defn worker-config-path [hu wu] (str (worker-path hu wu) "/config"))
+(defn worker-config-update-path [hu wu] (str (worker-config-path hu wu) "/update"))
+(defn worker-config-delete-path [hu wu] (str (worker-config-path hu wu) "/delete"))
+
 (defn worker-data-path [hu wu] (str (worker-path hu wu) "/data"))
 (defn worker-logs-path [hu wu] (str (worker-path hu wu) "/logs"))
 

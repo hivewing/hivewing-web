@@ -130,7 +130,7 @@
   helpers/all
   flash/all
   buttons/all
-  forms/form-inputs
+  forms/all
   pure/themed
 
   [:div.not-found

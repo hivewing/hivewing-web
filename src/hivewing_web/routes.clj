@@ -1,6 +1,7 @@
 (ns hivewing-web.routes
     (:require [compojure.core :refer :all]
               [compojure.route :as route]
+              [taoensso.timbre :as logger]
               [hivewing-web.paths :as paths]
               [hivewing-web.home-controller :as home]
               [hivewing-web.apiary-controller :as apiary]
@@ -9,40 +10,57 @@
               [hivewing-web.worker-controller :as worker]
               [hivewing-web.login-controller :as login]))
 
-; TODO
-  ; Want to have "requires-beekeeper" routes
-  ; Put them into their own block
-  ; http://www.luminusweb.net/docs/routes.md#restricting_access
-  ; Write a macro to "decorate" all their methods with (requires beekeeper)
-  ; Add.
-  ; Redirect you to /apiary when you login.
-  ; If you are logged in, on login, redirect to return to
-  ;
-  ; want to be able to name them and look them back up!
+(defn log-request
+  [{:keys [request-method uri remote-addr query-string params] :as req}]
+
+  (logger/info (str "Starting "
+             request-method " "
+             uri (if query-string (str "?" query-string))
+             " for " remote-addr
+             " " (dissoc (:headers req) "authorization"))) ;; log headers, but don't log username/password, if any
+
+  (logger/debug (str "Request details: " (select-keys req [:server-port :server-name :remote-addr :uri
+                                                       :query-string :scheme :request-method
+                                                       :content-type :content-length :character-encoding])))
+  (if (not (empty? params))
+    (logger/info (str "  \\ - - - -  Params: " params)))
+  req
+  )
+
+(defn log-response
+  [{:keys [status] :as resp}]
+  (logger/info "Response: " status)
+  resp)
+
+(defmacro hw-route
+  [action path method & args]
+  `(~action ~path {:as req#} (log-response (~method (log-request req#) ~@args))))
 
 (defroutes app-routes
   "Route for Hivewing-Web!"
   ;; Root Request
-  (GET "/" {:as req} (home/index req))
-  (GET  "/login" {:as req} (login/login req :post-to "/login"))
-  (POST "/login" {:as req} (login/do-login req ))
-  (GET  "/logout" {:as req} (login/logout req))
-  (GET  (paths/apiary-path) {:as req} (apiary/status req))
-  (GET  (paths/apiary-manage-path) {:as req} (apiary/manage req))
-  (GET  "/apiary/join" {:as req} (apiary/join req :post-to "/apiary/join"))
-  (POST "/apiary/join" {:as req} (apiary/do-join req))
+  (hw-route GET "/" home/index)
+  (hw-route GET  "/login" login/login :post-to "/login")
 
-  (GET (paths/hive-path ":hive-uuid") {:as req } ( hive/status req))
-  (GET (paths/hive-manage-path ":hive-uuid") {:as req } ( hive/manage req))
+  (hw-route POST "/login"  login/do-login)
+  (hw-route GET  "/logout"  login/logout)
+  (hw-route GET  (paths/apiary-path)  apiary/status)
+  (hw-route GET  (paths/apiary-manage-path)  apiary/manage)
+  (hw-route GET  "/apiary/join"  apiary/join :post-to "/apiary/join")
+  (hw-route POST "/apiary/join"  apiary/do-join)
 
-  (GET (paths/worker-path ":hive-uuid" ":worker-uuid") {:as req} (worker/status req))
-  (GET (paths/worker-manage-path ":hive-uuid" ":worker-uuid") {:as req} (worker/manage req))
-  (GET (paths/worker-config-path ":hive-uuid" ":worker-uuid") {:as req} (worker/config req))
-  (GET (paths/worker-data-path ":hive-uuid" ":worker-uuid") {:as req} (worker/data req))
-  (GET (paths/worker-logs-path ":hive-uuid" ":worker-uuid") {:as req} (worker/logs req))
+  (hw-route GET (paths/hive-path ":hive-uuid") hive/status)
+  (hw-route GET (paths/hive-manage-path ":hive-uuid") hive/manage)
 
-  ; This is for when you have a new worker and want to add it
-  ; individually to a selected hive / apiary.
-  ;(GET "/worker"
-  (ANY "*" {:as req} (system/not-found req))
+  (hw-route GET  (paths/worker-path ":hive-uuid" ":worker-uuid") worker/status)
+  (hw-route GET  (paths/worker-manage-path ":hive-uuid" ":worker-uuid")  worker/manage)
+  (hw-route POST (paths/worker-config-update-path ":hive-uuid" ":worker-uuid")  worker/update-config)
+  (hw-route POST (paths/worker-config-delete-path ":hive-uuid" ":worker-uuid")  worker/delete-config)
+  (hw-route POST (paths/worker-config-path ":hive-uuid" ":worker-uuid")  worker/create-config)
+  (hw-route GET  (paths/worker-config-path ":hive-uuid" ":worker-uuid")  worker/config)
+
+  (hw-route GET (paths/worker-data-path ":hive-uuid" ":worker-uuid") worker/data)
+  (hw-route GET (paths/worker-logs-path ":hive-uuid" ":worker-uuid") worker/logs)
+
+  (ANY "*" {:as req} (log-response (system/not-found (log-request req))))
   )
