@@ -39,7 +39,7 @@
   (if (empty? image-url)
     "unknown"
     (let [url (u/url-like image-url)
-          path-str (or (u/path-of url) "unknown/unknown")
+          path-str (or (and url (u/path-of url)) "unknown/unknown")
           ref (last (clojure.string/split path-str #"\/"))]
       ref)))
 
@@ -50,35 +50,98 @@
         []
         (json/read-str tasks-str))))
 
-(defn status [req hive worker worker-config tasks system-worker-logs]
+(defn status [req hive worker worker-config tasks system-worker-logs worker-task-tracing]
   [:div
     [:h1 "Status"]
 
     [:div.data-listing
+      [:table.pure-table.f-r
+        [:thead
+          [:tr
+            [:th "Task"]
+            [:th "State"]
+            [:th "Tracing"]
+           ]
+        ]
+        (if (empty? tasks)
+          [:tr [:td.center {:colspan 3} "None"]]
+          (map #(vector :tr [:td (key %)]
+                            [:td (val %)]
+                            [:td (if (get worker-task-tracing (key %)) "On" "Off")]) tasks))
+       ]
+
       [:h3 "Name"]
+      [:span worker]
       [:span (:name worker)]
       [:h3 "Hive Image Ref"
         [:span.header-sub "configured / current"]]
       [:span (hive-image-ref (get worker-config ".hive-image" ))]
       [:span "  /  "]
       [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
-      [:h3 "Tasks"]
-      [:table.pure-table.pure-u-1-1
-        (if (empty? tasks)
-          [:tr [:td.center {:colspan 2} "None"]]
-          (map #(vector :tr [:td (key %)]
-                            [:td (val %)]) tasks))
-       ]
 
       [:h3 "System Logs"]
-      [:table.pure-table.pure-u-1-1
+      [:table.pure-table.pure-table-horozontal.pure-table-striped
         (map #(vector :tr [:td (:at %)] [:td (:message %)]) system-worker-logs)
        ]
      ]])
 
-(defn manage [req]
-  [:div.text-center
-    [:h1 "Worker manage"]])
+(defn manage [req hive worker tasks worker-task-tracing]
+  [:div
+    [:h1 "Manage"]
+    [:form.pure-form.pure-form-stacked {:method "post"}
+      (helpers/anti-forgery-field)
+      [:label "Name"]
+      [:input {:type :text :value (:name worker) :pattern "{1,120}" :name :worker-manage-name}]
+      [:input.pure-button.pure-button-primary {:value "Save" :type :submit}]
+    ]
+
+    [:h2 "Worker Events"]
+    [:div.pure-g.pure-u-1-1
+      [:form {:method "post"}
+        (helpers/anti-forgery-field)
+        [:div
+          [:p [:b "Reboot the worker" ]]
+          [:p "This will cause all the tasks on the worker to restart. Configuration is persisted"]
+          [:input.pure-button.pure-u-1-4 {:type :submit :name :worker-event-reboot :value "Reboot Worker"}]
+        ]
+        [:div
+          [:p [:b "Reset the worker" ]]
+          [:p "This will cause the worker to delete all configuration, stop all tasks, and bootstrap itself again"]
+          [:input.pure-button.pure-u-1-4 {:type :submit :name :worker-event-reset :value "Reset Worker"}]
+        ]
+      ]
+    ]
+
+    [:h2 "Task Logging"]
+    [:table.pure-table.pure-table-striped.pure-table-horizontal
+      [:thead
+        [:tr
+          [:th "Task"]
+          [:th "Tracing"]
+         ]
+      ]
+      (if (empty? tasks)
+        [:tr [:td.center {:colspan 3} "None"]]
+        (map #(vector :tr [:td (key %)]
+                          [:td [:form {:method "post"}
+                                (helpers/anti-forgery-field)
+                                [:input {:type :hidden :name :worker-task :value (key %)}]
+                                [:input.pure-button {:class (if (get worker-task-tracing (key %)) "pure-button-active" "") :type :submit :name :worker-task-tracing :value "On"}]
+                                [:input.pure-button {:class (if (get worker-task-tracing (key %)) "" "pure-button-active") :type :submit :name :worker-task-tracing :value "Off"}]]]) tasks))
+      ]
+    [:hr]
+    [:h3 "Delete Worker"]
+    [:p "Deleting the worker will remove it from the hive and clear the data from the device.  The device will need to be re-initialized and connected back to hive-wing"]
+    [:form.pure-form {:method "post" :action (paths/worker-delete-path (:uuid hive) (:uuid worker))}
+      (helpers/anti-forgery-field)
+      [:input.pure-u-1-2 {:type :text :required :required :pattern "[pP][lL][eE][aA][sS][eE][ ]+[dD][eE][lL][eE][tT][eE]"
+               :placeholder "To confirm type \"Please Delete\""
+               :name :worker-delete-confirmation
+               :title "To confirm type \"Please Delete\""}]
+      [:input.pure-button.button-error.pure-u-1-4 {:type :submit :value "Delete Worker"}]
+     ]
+
+    ])
 
 (defn split-config-name
   "Splits a config key into the task and config name."

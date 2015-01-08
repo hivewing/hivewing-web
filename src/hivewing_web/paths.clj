@@ -15,6 +15,7 @@
 
 (defn worker-status-path [hu wu] (str (worker-path hu wu)))
 (defn worker-manage-path [hu wu] (str (worker-path hu wu) "/manage"))
+(defn worker-delete-path [hu wu] (str (worker-path hu wu) "/delete-worker"))
 (defn worker-config-path [hu wu] (str (worker-path hu wu) "/config"))
 (defn worker-config-update-path [hu wu] (str (worker-config-path hu wu) "/update"))
 (defn worker-config-delete-path [hu wu] (str (worker-config-path hu wu) "/delete"))

@@ -89,7 +89,7 @@
             ]
            ]
           (if (not (empty? flash))
-            [:div.flash flash]
+            [:div#flash.flash flash]
             )
           [:div.content-wrapper
            (case style
@@ -101,5 +101,9 @@
           [:footer
             [:div.footer-copyright
              [:div.container "© 2015 Copyright Hivewing.io"]]]
-          ]])
+          ]
+          ;; Lets hide those flash messages!
+          [:script "$(document).ready(function() {$('#flash').delay(5000).slideUp(1000);});"]
+
+        ])
     ))

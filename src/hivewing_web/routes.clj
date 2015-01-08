@@ -53,7 +53,9 @@
   (hw-route GET (paths/hive-manage-path ":hive-uuid") hive/manage)
 
   (hw-route GET  (paths/worker-path ":hive-uuid" ":worker-uuid") worker/status)
+  (hw-route POST (paths/worker-delete-path ":hive-uuid" ":worker-uuid") worker/delete-worker)
   (hw-route GET  (paths/worker-manage-path ":hive-uuid" ":worker-uuid")  worker/manage)
+  (hw-route POST (paths/worker-manage-path ":hive-uuid" ":worker-uuid")  worker/update-manage)
   (hw-route POST (paths/worker-config-update-path ":hive-uuid" ":worker-uuid")  worker/update-config)
   (hw-route POST (paths/worker-config-delete-path ":hive-uuid" ":worker-uuid")  worker/delete-config)
   (hw-route POST (paths/worker-config-path ":hive-uuid" ":worker-uuid")  worker/create-config)
