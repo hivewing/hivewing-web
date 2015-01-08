@@ -10,3 +10,5 @@ pom.xml.asc
 *.swp
 /log/
 /profiles.clj
+*.swo
+resources/public/css/application.css

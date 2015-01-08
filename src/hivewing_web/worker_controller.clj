@@ -33,7 +33,7 @@
                                worker-in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker          (worker/worker-get worker-uuid)
                                worker-config   (worker-config/worker-config-get worker-uuid :include-system-keys true)
-                               tasks   (or (worker-config/worker-config-get-tasks worker-uuid) [])
+                               tasks           (worker-config/worker-config-get-tasks worker-uuid)
                                system-worker-logs    (hive-logs/hive-logs-read hive-uuid :worker-uuid worker-uuid :task nil)
                                ]
 
@@ -108,7 +108,7 @@
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker (worker/worker-get worker-uuid)
                                worker-config   (worker-config/worker-config-get worker-uuid)
-                               tasks   (or (worker-config/worker-config-get-tasks worker-uuid) [])
+                               tasks   (keys (worker-config/worker-config-get-tasks worker-uuid))
                                ]
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req
@@ -142,11 +142,12 @@
                               ]
 
         (let [
-              tasks        (or (worker-config/worker-config-get-tasks worker-uuid) [])
+              tasks        (keys (worker-config/worker-config-get-tasks worker-uuid))
               current-task (:worker-logs-task (:params req))
               ;; If it is "ALL"
               current-task (if (= current-task "*ALL*") nil current-task)
               current-task (some #(when (= current-task %) %) tasks)
+
               start-time-raw (or (:worker-logs-start (:params req)) (str (ctimec/to-long (ctime/now))))
               start-at     (ctimec/to-sql-time (ctimec/from-long (read-string start-time-raw)))
               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)

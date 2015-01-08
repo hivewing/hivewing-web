@@ -65,8 +65,9 @@
       [:h3 "Tasks"]
       [:table.pure-table.pure-u-1-1
         (if (empty? tasks)
-          [:tr [:td "None"]]
-          (map #(vector :tr [:td %]) tasks))
+          [:tr [:td.center {:colspan 2} "None"]]
+          (map #(vector :tr [:td (key %)]
+                            [:td (val %)]) tasks))
        ]
 
       [:h3 "System Logs"]
