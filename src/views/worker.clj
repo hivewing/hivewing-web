@@ -278,7 +278,7 @@
             [:a.pure-button {:href rewind-link} "Reset"])
           [:a.pure-button {:href next-link} "Next"]
         ]
-        [:h3 (str "Logs start from: " start-at)]]
+        [:h3 (str "Logs from: " start-at)]]
 
       (if (empty? log-messages)
          [:h3 "No Log Messages"])
