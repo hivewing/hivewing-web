@@ -4,6 +4,7 @@
             [hivewing-web.paths :as paths]
             [hivewing-core.beekeeper :as bk]
             [hivewing-core.hive-manager :as hm]
+            [hivewing-core.hive-logs :as hive-logs]
             [hivewing-core.worker :as worker]
             [hivewing-core.hive :as hive]
             [hivewing-core.apiary :as apiary]
@@ -27,9 +28,10 @@
             access?       (hive/hive-can-read? (:uuid bk) hive-uuid)
             worker-uuids  (worker/worker-list hive-uuid :page 1 :per-page 500)
             workers       (map #(worker/worker-get (:uuid %)) worker-uuids)
+            system-worker-logs    (hive-logs/hive-logs-read hive-uuid :worker-uuid nil :task nil)
           ]
         (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
-          (render (layout/render req (views/status req hive workers can-manage?)
+          (render (layout/render req (views/status req hive workers can-manage? system-worker-logs)
                                         :style :side-menu
                                         :side-menu (views/side-menu req :status can-manage?)
                                         :back-link { :href (paths/apiary-path)
@@ -45,17 +47,14 @@
                                can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)
                                ]
         (let [new-name (:hive-manage-name (:params req))
-              flash-msg (str
-                          ;; Updating to a new name
-                          (if new-name
-                            (do
-                              (hive/hive-set-name hive-uuid new-name)
-                              "Updated name"))
-                          )
+              new-branch (:hive-manage-image-branch (:params req))
               ]
+              (if new-branch (hive/hive-set-image-branch hive-uuid new-branch))
+              ;; Updating to a new name
+              (if new-name (hive/hive-set-name hive-uuid new-name))
             (->
               (r/redirect (paths/hive-manage-path hive-uuid))
-              (assoc :flash flash-msg)))))))
+              (assoc :flash "Updated hive")))))))
 (defn manage
   [req & args]
   (with-required-parameters req [hive-uuid]
