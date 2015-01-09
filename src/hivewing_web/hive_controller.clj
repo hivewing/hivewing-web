@@ -7,6 +7,7 @@
             [hivewing-core.worker :as worker]
             [hivewing-core.hive :as hive]
             [hivewing-core.apiary :as apiary]
+            [ring.util.response :as r]
             [views.hive :as views]
             [views.layout :as layout]
      ))
@@ -36,6 +37,25 @@
                                     )))))))
 
 
+(defn update-manage
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)
+                               ]
+        (let [new-name (:hive-manage-name (:params req))
+              flash-msg (str
+                          ;; Updating to a new name
+                          (if new-name
+                            (do
+                              (hive/hive-set-name hive-uuid new-name)
+                              "Updated name"))
+                          )
+              ]
+            (->
+              (r/redirect (paths/hive-manage-path hive-uuid))
+              (assoc :flash flash-msg)))))))
 (defn manage
   [req & args]
   (with-required-parameters req [hive-uuid]

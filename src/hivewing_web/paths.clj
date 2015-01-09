@@ -22,6 +22,7 @@
 
 (defn worker-data-path [hu wu] (str (worker-path hu wu) "/data"))
 (defn worker-logs-path [hu wu] (str (worker-path hu wu) "/logs"))
+(defn worker-logs-delta-path [hu wu] (str (worker-path hu wu) "/logs/delta"))
 
 (defn hive-path
   [hive-uuid]

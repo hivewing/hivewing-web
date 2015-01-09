@@ -51,7 +51,7 @@
         (json/read-str tasks-str))))
 
 (defn status [req hive worker worker-config tasks system-worker-logs worker-task-tracing]
-  [:div
+  [:div.worker-status
     [:h1 "Status"]
 
     [:div.data-listing
@@ -80,7 +80,7 @@
       [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
 
       [:h3 "System Logs"]
-      [:table.pure-table.pure-table-horozontal.pure-table-striped
+      [:table.pure-table.pure-table-horozontal.pure-table-striped.logs
         (map #(vector :tr [:td (:at %)] [:td (:message %)]) system-worker-logs)
        ]
      ]])
@@ -222,16 +222,40 @@
   [log]
     (vector :tr
             [:td (str (:at log))]
-            [:td (str (:message log))]))
-
-(comment
-  (def current-url "http://localhost:8000/hives/12345678-1234-1234-1234-123456789012/workers/2a04f8e4-96bd-11e4-a761-0242ac11038c/logs?worker-logs-start=1420672137500&worker-logs-task=*ALL*&__anti-forgery-token=UHDJut0UKdeNtR3v4nDOkeWIUk1tnpWA+mOZKc0Dov%252FrYRmHA%252F7nqjPZ+oRo7OFMRRK829EINL7hBE5E")
-  (if start-at (controller-core/same-url-with-new-params current-url {:worker-logs-start nil}) nil)
-  )
+            [:td (or (:task log) "--system--")]
+            [:td  (str (:message log))]))
 
 
-(defn logs [req current-task start-at tasks log-messages]
+(defn log-update-script
+  [req hive-uuid worker-uuid recent-time]
 
+  (let [req-params (:params req)
+        recent-time (or recent-time (java.util.Date.))
+        worker-logs-after (.getTime recent-time)
+        all-params (assoc req-params :worker-logs-after worker-logs-after)
+        stringd    (clojure.walk/stringify-keys all-params)
+        ]
+
+    (str  "\nvar log_update_request = function() {
+              $.ajax({
+                url: \"" (paths/worker-logs-delta-path hive-uuid worker-uuid) "\",
+                data: " (json/write-str stringd)  ",
+                success: function(data) {
+                  $('.logs-insertion-point').prepend(data);
+                }
+              });
+            };
+            setTimeout(log_update_request, 5000);
+            ")))
+
+(defn logs-delta
+  [req hive worker log-messages]
+    (html
+      (map render-worker-log log-messages)
+      [:script (log-update-script req (:uuid hive) (:uuid worker) (:at (first log-messages)))]
+     ))
+
+(defn logs [req hive worker current-task start-at tasks log-messages]
   (let [current-url (ring-request/request-url req)
         rewind-link (if start-at (controller-core/same-url-with-new-params current-url {:worker-logs-start nil}) nil)
         next-start-at (ctimec/to-long (:at (last log-messages)))
@@ -258,8 +282,10 @@
 
       (if (empty? log-messages)
          [:h3 "No Log Messages"])
-      [:table.logs.pure-table.pure-table-striped-horizontal.pure-table-striped.pure-u-1-1
-        [:tbody
-
+      [:table.pure-table.logs.pure-table-striped-horizontal.pure-table-striped
+        [:tbody.logs-insertion-point
           (map render-worker-log log-messages)
-        ]]]))
+        ]]
+
+      [:script (log-update-script req (:uuid hive) (:uuid worker) (:at (first log-messages)))]
+      ]))

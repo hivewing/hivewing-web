@@ -70,6 +70,7 @@
                 :rel  "stylesheet"
                 :type "text/css"}]
         [:script {:src "//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"}]
+        [:script {:src "http://cdn.ractivejs.org/latest/ractive.js"}]
         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       ]
       [:body

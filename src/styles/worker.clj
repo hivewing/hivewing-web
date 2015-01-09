@@ -14,9 +14,12 @@
 
 (def all
   [
-   [:.worker-logs
+   [:.worker-logs :.worker-status
       [:form
-       [:.pure-button {:margin "5px"}]]
+       [:.pure-button {:margin "5px"}]
+       [:td {:box-sizing :border-box}]
+       [:tr {:box-sizing :border-box}]
+       ]
       [:.navigation {:float "right" }
        [:.pure-button {:margin "5px"}]]
     ]

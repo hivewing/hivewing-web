@@ -173,7 +173,7 @@
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker (worker/worker-get worker-uuid)
                                worker-config   (worker-config/worker-config-get worker-uuid)
-                               tasks   (keys (worker-config/worker-config-get-tasks worker-uuid))
+                               tasks   (or (keys (worker-config/worker-config-get-tasks worker-uuid)) [])
                                ]
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req
@@ -196,6 +196,29 @@
                          :side-menu (views/side-menu req :data can-manage?)
                          :back-link { :href (paths/hive-path hive-uuid)
                                       :text "Hive"})))))))
+(defn logs-delta
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid worker-logs-after]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                              ]
+        (let [tasks   (or (keys (worker-config/worker-config-get-tasks worker-uuid)) [])
+              current-task (:worker-logs-task (:params req))
+              ;; If it is "ALL"
+              current-task (if (= current-task "*ALL*") nil current-task)
+              current-task (some #(when (= current-task %) %) tasks)
+
+              start-time-raw (or (:worker-logs-start (:params req)) (str (ctimec/to-long (ctime/now))))
+              start-at     (ctimec/to-sql-time (ctimec/from-long (read-string start-time-raw)))
+              search-args  (vector hive-uuid :start-at start-at :worker-uuid worker-uuid)
+              all-search-args (if current-task (conj search-args :task current-task) search-args)
+              worker-logs   (apply hive-logs/hive-logs-read all-search-args)
+              ]
+          (views/logs-delta req hive worker worker-logs)
+        )))))
+
 (defn logs
   [req & args]
 
@@ -207,7 +230,7 @@
                               ]
 
         (let [
-              tasks        (keys (worker-config/worker-config-get-tasks worker-uuid))
+              tasks   (or (keys (worker-config/worker-config-get-tasks worker-uuid)) [])
               current-task (:worker-logs-task (:params req))
               ;; If it is "ALL"
               current-task (if (= current-task "*ALL*") nil current-task)
@@ -222,7 +245,7 @@
               ]
 
             (render (layout/render req
-                         (views/logs req current-task start-at tasks worker-logs)
+                         (views/logs req hive worker current-task start-at tasks worker-logs)
                          :style :side-menu
                          :side-menu (views/side-menu req :logs can-manage?)
                          :back-link { :href (paths/hive-path hive-uuid)

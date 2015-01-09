@@ -34,5 +34,12 @@
 (defn manage
   [req hive]
   [:div
-    [:h1 (str "Manage " (:name hive)) ]
+    [:h1 "Manage"]
+    [:form.pure-form.pure-form-stacked {:method "post"}
+      (helpers/anti-forgery-field)
+      [:label "Name"]
+      [:input {:type :text :value (:name hive) :pattern "{1,120}" :name :hive-manage-name}]
+      [:input.pure-button.pure-button-primary {:value "Save" :type :submit}]
+    ]
+
     ])
