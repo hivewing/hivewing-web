@@ -211,12 +211,50 @@
         (map #(render-config-row % hive worker can-manage?) (sort-by first (map identity worker-config)))
       ]
     ]
-  ]
+  ])
+
+(defn render-data-value-row
+  [req hive worker data-name value]
+    [:tr
+      [:td (:at value)]
+      [:td (:data value)]])
+
+(defn show-data-values
+  [req hive worker data-name data-values]
+    [:div
+     [:h1 (str data-name " Data")]
+     [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+        [:thead
+          [:tr
+            [:th "At"]
+            [:th "Value"]
+            ]]
+        [:tbody
+          (map #(render-data-value-row req hive worker data-name % )  (sort-by first (map identity data-values)))
+        ]
+      ]
+    ]
   )
 
-(defn data [req]
-  [:div.text-center
-    [:h1 "Worker data"]])
+
+(defn render-data-row
+  [req hive worker data-name]
+    [:tr
+      [:td
+         [:a {:href (paths/worker-data-value-path (:uuid hive) (:uuid worker) data-name)}
+          data-name]]])
+
+(defn data [req hive worker data-keys]
+  [:div
+    [:h1 "Worker Data"]
+    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:tbody
+       (if (empty? data-keys)
+         [:tr.center [:h3 "No Data"]])
+        (map #(render-data-row req hive worker % )  (sort-by first (map identity data-keys)))
+      ]
+    ]
+  ])
 
 (defn render-worker-log
   [log]

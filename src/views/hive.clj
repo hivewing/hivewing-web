@@ -17,7 +17,12 @@
        :selected? (= current-page :manage)
         :text "Manage"
         :disabled? (not can-manage?)}
+      {:href (paths/hive-data-path hu)
+       :selected? (= current-page :data)
+        :text "Data"
+        :disabled? (not can-manage?)}
       )))
+
 (defn hive-image-url
   [hive-uuid]
     (str "git@images.hivewing.io/" hive-uuid ".git"))
@@ -63,3 +68,50 @@
     ]
 
     ])
+
+
+
+(defn render-data-value-row
+  [req hive data-name value]
+    [:tr
+      [:td (:at value)]
+      [:td (:data value)]])
+
+(defn show-data-values
+  [req hive data-name data-values]
+    [:div
+     [:h1 (str data-name " Data")]
+     [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+        [:thead
+          [:tr
+            [:th "At"]
+            [:th "Value"]
+            ]]
+        [:tbody
+          (map #(render-data-value-row req hive data-name % )  (sort-by first (map identity data-values)))
+        ]
+      ]
+    ]
+  )
+(defn render-data-row
+  [req hive data-name]
+    [:tr
+      [:td
+         [:a {:href (paths/hive-data-value-path (:uuid hive) data-name)}
+          data-name]]])
+
+(defn data
+  [req hive data-keys]
+  [:div
+    [:h1 "Hive Data"]
+    [:p "This data is not associated with a given worker but with an entire hive.
+        Data in this collection only comes from data-processing pipelines"]
+
+    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:tbody
+       (if (empty? data-keys)
+         [:tr.center [:h3 "No Data"]])
+        (map #(render-data-row req hive % )  (sort-by first (map identity data-keys)))
+      ]
+    ]
+  ])

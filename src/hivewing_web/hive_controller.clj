@@ -5,6 +5,7 @@
             [hivewing-core.beekeeper :as bk]
             [hivewing-core.hive-manager :as hm]
             [hivewing-core.hive-logs :as hive-logs]
+            [hivewing-core.hive-data :as hive-data]
             [hivewing-core.worker :as worker]
             [hivewing-core.hive :as hive]
             [hivewing-core.apiary :as apiary]
@@ -34,6 +35,40 @@
           (render (layout/render req (views/status req hive workers can-manage? system-worker-logs)
                                         :style :side-menu
                                         :side-menu (views/side-menu req :status can-manage?)
+                                        :back-link { :href (paths/apiary-path)
+                                                     :text "Apiary" }
+                                    )))))))
+(defn show-data-values
+  [req & args]
+
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid data-name]
+      (with-preconditions req [
+            hive          (hive/hive-get hive-uuid)
+            access?       (hive/hive-can-read? (:uuid bk) hive-uuid)
+            data-values   (hive-data/hive-data-read hive-uuid nil data-name)
+          ]
+        (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+          (render (layout/render req (views/show-data-values req hive data-name data-values)
+                                        :style :side-menu
+                                        :side-menu (views/side-menu req :data can-manage?)
+                                        :back-link { :href (paths/apiary-path)
+                                                     :text "Apiary" }
+                                    )))))))
+
+(defn data
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid]
+      (with-preconditions req [
+            hive          (hive/hive-get hive-uuid)
+            access?       (hive/hive-can-read? (:uuid bk) hive-uuid)
+            data-keys     (hive-data/hive-data-get-keys hive-uuid)
+          ]
+        (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+          (render (layout/render req (views/data req hive data-keys)
+                                        :style :side-menu
+                                        :side-menu (views/side-menu req :data can-manage?)
                                         :back-link { :href (paths/apiary-path)
                                                      :text "Apiary" }
                                     )))))))

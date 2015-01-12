@@ -7,6 +7,7 @@
             [hivewing-core.worker-config :as worker-config]
             [hivewing-core.worker-events :as worker-events]
             [hivewing-core.hive-logs :as hive-logs]
+            [hivewing-core.hive-data :as hive-data]
             [ring.util.response :as r]
             [clj-time.coerce :as ctimec]
             [clj-time.core :as ctime]
@@ -14,8 +15,6 @@
             [views.worker :as views]))
 (comment
   (def hive-uuid "12345678-1234-1234-1234-123456789012")
-  (def worker-uuid "cafe9192-96a4-11e4-933f-0242ac110374")
-  (def worker-uuid "2a04f8e4-96bd-11e4-a761-0242ac11038c")
   (hive-logs/hive-logs-read hive-uuid)
   (hive-logs/hive-logs-read hive-uuid :worker-uuid worker-uuid)
   (hive-logs/hive-logs-push hive-uuid worker-uuid nil "System Worker Log Message")
@@ -182,16 +181,33 @@
                          :side-menu (views/side-menu req :config can-manage?)
                          :back-link { :href (paths/hive-path hive-uuid)
                                       :text "Hive"})))))))
+(defn show-data-values
+  [req & args]
+    (with-beekeeper req bk
+        (with-required-parameters req [hive-uuid worker-uuid data-name]
+          (with-preconditions req [hive (hive/hive-get hive-uuid)
+                                   in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                                   worker (worker/worker-get worker-uuid)
+                                   data-values (hive-data/hive-data-read hive-uuid worker-uuid data-name)
+                                   ]
+            (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+              (render (layout/render req
+                             (views/show-data-values req hive worker data-name data-values)
+                             :style :side-menu
+                             :side-menu (views/side-menu req :data can-manage?)
+                             :back-link { :href (paths/hive-path hive-uuid)
+                                          :text "Hive"})))))))
 (defn data
   [req & args]
   (with-beekeeper req bk
     (with-required-parameters req [hive-uuid worker-uuid]
       (with-preconditions req [hive (hive/hive-get hive-uuid)
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
-                               worker (worker/worker-get worker-uuid)]
+                               worker (worker/worker-get worker-uuid)
+                               data-keys (hive-data/hive-data-get-keys hive-uuid worker-uuid)]
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
         (render (layout/render req
-                         (views/data req )
+                         (views/data req hive worker data-keys)
                          :style :side-menu
                          :side-menu (views/side-menu req :data can-manage?)
                          :back-link { :href (paths/hive-path hive-uuid)
