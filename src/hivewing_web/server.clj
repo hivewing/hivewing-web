@@ -3,6 +3,7 @@
     [ring.middleware.defaults :refer [site-defaults secure-site-defaults wrap-defaults]]
     [ring.middleware.session.cookie :as rmsc]
     [ring.middleware.flash :as rmf]
+    [ring.middleware.content-type :as rmct]
     [hivewing-web.configuration :as config]
     [hivewing-web.routes :refer [app-routes]]))
 
@@ -16,10 +17,11 @@
                   }
             :responses {
                   :absolute-redirects false
-                  :content-type true
+                  :content-types true
                   :not-modified-responses true
-                }
+             }
                   )]
+
       (->
         (wrap-defaults
             app-routes

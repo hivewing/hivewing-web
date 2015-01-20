@@ -2,6 +2,7 @@
     (:require [compojure.core :refer :all]
               [compojure.route :as route]
               [taoensso.timbre :as logger]
+              [ring.util.response :as r]
               [hivewing-web.paths :as paths]
               [hivewing-web.home-controller :as home]
               [hivewing-web.apiary-controller :as apiary]
@@ -51,6 +52,7 @@
 
   (hw-route GET (paths/hive-path ":hive-uuid") hive/status)
   (hw-route GET (paths/hive-manage-path ":hive-uuid") hive/manage)
+  (hw-route GET (paths/hive-processing-path ":hive-uuid") hive/processing)
   (hw-route POST (paths/hive-manage-path ":hive-uuid") hive/update-manage)
   (hw-route GET (paths/hive-data-path ":hive-uuid") hive/data)
   (hw-route GET (paths/hive-data-value-path ":hive-uuid" ":data-name") hive/show-data-values)

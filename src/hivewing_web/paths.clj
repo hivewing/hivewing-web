@@ -31,3 +31,4 @@
 (defn hive-manage-path [hu] ( str (hive-path hu) "/manage"))
 (defn hive-data-path [hu] ( str (hive-path hu) "/data"))
 (defn hive-data-value-path [hu dn] ( str (hive-path hu) "/data/" dn))
+(defn hive-processing-path [hu] ( str (hive-path hu) "/processing"))

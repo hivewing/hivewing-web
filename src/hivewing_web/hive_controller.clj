@@ -6,6 +6,7 @@
             [hivewing-core.hive-manager :as hm]
             [hivewing-core.hive-logs :as hive-logs]
             [hivewing-core.hive-data :as hive-data]
+            [hivewing-core.hive-data-stages :as hive-data-stages]
             [hivewing-core.worker :as worker]
             [hivewing-core.hive :as hive]
             [hivewing-core.apiary :as apiary]
@@ -102,6 +103,23 @@
         (render (layout/render req (views/manage req hive)
                                       :style :side-menu
                                       :side-menu (views/side-menu req :manage can-manage?)
+                                      :back-link { :href (paths/apiary-path)
+                                                   :text "Apiary" }
+                                    ))))))
+
+(defn processing
+  [req & args]
+  (with-required-parameters req [hive-uuid]
+    (with-preconditions req [
+          bk   (session/current-user req)
+          access? (hive/hive-can-modify? (:uuid bk) hive-uuid)
+          hive    (hive/hive-get hive-uuid)
+          hive-stages (hive-data-stages/hive-data-stages-index hive-uuid)
+          ]
+      (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+        (render (layout/render req (views/processing req hive hive-stages)
+                                      :style :side-menu
+                                      :side-menu (views/side-menu req :processing can-manage?)
                                       :back-link { :href (paths/apiary-path)
                                                    :text "Apiary" }
                                     ))))))

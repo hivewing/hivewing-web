@@ -13,7 +13,6 @@
                  [lib-noir "0.9.5"]
                  [com.taoensso/timbre "3.3.1"]
                  [clojurewerkz/urly "1.0.0"]
-                 [clj-time "0.9.0"]
                  [hivewing-core "0.1.3-SNAPSHOT"]
                  ]
 

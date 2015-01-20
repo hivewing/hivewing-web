@@ -73,6 +73,10 @@
       [:h3 "Name"]
       [:span worker]
       [:span (:name worker)]
+      [:h3 "Connected"]
+      [:span (if (:connected worker) "Connected" "Disconnected")]
+      [:h3 "Last Seen"]
+      [:span (if (:last_seen worker) (:last_seen worker) "Never seen")]
       [:h3 "Hive Image Ref"
         [:span.header-sub "configured / current"]]
       [:span (hive-image-ref (get worker-config ".hive-image" ))]

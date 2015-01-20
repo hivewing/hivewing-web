@@ -3,10 +3,10 @@
    [styles.worker :as worker]
    [styles.colors :as colors]
    [styles.fonts :as fonts]
-   [styles.buttons :as buttons]
    [styles.flash :as flash]
    [styles.helpers :as helpers]
    [styles.forms :as forms]
+   [styles.home :as home]
    [styles.pure :as pure]
    [garden.def :refer [defstyles]]
    [garden.color :as color :refer [hsl rgb]]
@@ -24,7 +24,7 @@
     :font-size (px 16)
     :line-height 1.5
     :padding 0
-    :background "url(/images/main-bg.png)"
+    :background colors/main-background
     :height "100%"
     :margin 0}]
 
@@ -48,8 +48,8 @@
        :font-size (px 25)
        :line-height header-height
        :letter-spacing (px 4)
-       :color colors/primary}
-      [:.end {:color colors/secondary}]]
+       :color colors/logo-color}
+      [:.end {:color colors/logo-end-color}]]
 
     [:.side-nav
 
@@ -65,24 +65,26 @@
       :font-size (px 25)
       }
      ]
-    {:background colors/solid-background
+    {:background colors/header-background
      :padding "0 10px"
      :line-height header-height
+     :height header-height
+     :overflow "hidden"
      }]
 
   ; ----------------------
   ; FOOTER
   ; ----------------------
   [:footer {:text-align "center"
-            :border-top (str "1px " "solid " colors/solid-background)
-            :color colors/secondary
+            :background colors/footer-background
+            :color colors/light-text
             :padding [0 (px 10)]
             :position "absolute"
             :bottom 0
             :left 0
             :right 0
             :line-height footer-height
-            :background "white"} ]
+            } ]
   ;; Layouts
   [:div.content-wrapper
     {:padding-bottom footer-height}
@@ -92,7 +94,7 @@
         :position "relative"
         :margin (px 0)
         :padding "0 20px" ;(px 20)
-        :background "white"
+        :background colors/main-background
         :height "100%"
       }
       [:div.side-menu-content
@@ -101,8 +103,8 @@
        ]
       [:div.side-menu
        [".pure-menu-heading"
-          { :background colors/primary
-            :color "white"
+          { :background colors/side-menu-heading-background
+            :color colors/light-text
             :margin-top 0
           }
         [".fa.fa-chevron-left" { :position "relative" :left "-5px" }]]
@@ -110,30 +112,43 @@
        {
         :position :absolute
         :left "0px"
-        :top 0
         :width (px 200)
-        :background colors/light-background
-        :border 0
+        :background colors/side-menu-background
+        :color colors/light-text
+        :border-right (str "1px solid " colors/side-menu-border)
+        :border-bottom (str "1px solid " colors/side-menu-border)
        }
       ]
    ]
   [:div.single.content
-   { :background "white"
+   ["&:before" {
+      :content "\"\""
+      :display "block"
+      :position "absolute"
+      :top header-height
+      :left 0
+      :right 0
+      :bottom footer-height
+      :z-index -1
+      :background-color "rgba(0,0,0,0.2)"
+   }]
+   {
+     :background colors/main-background
      :width "80%"
      :min-width (px 300)
      :max-width (px 500)
      :margin "50px auto"
-     :box-shadow (str "0px 0px 4px " colors/box-shadow)
+     :box-shadow (str "0px 0px 10px " colors/box-shadow)
     }]
   ; ----------------------
   ; Buttons
   ; ----------------------
   helpers/all
   flash/all
-  buttons/all
   forms/all
   pure/themed
   worker/all
+  home/all
 
   [:div.not-found
     { :padding (px 20) }

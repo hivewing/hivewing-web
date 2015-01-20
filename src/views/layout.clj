@@ -70,6 +70,7 @@
                 :rel  "stylesheet"
                 :type "text/css"}]
         [:script {:src "//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"}]
+        [:script {:src "/js/dagre-d3.min.js" :type "text/javascript"}]
         [:script {:src "http://cdn.ractivejs.org/latest/ractive.js"}]
         [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
       ]
@@ -85,7 +86,7 @@
               [:a {:href "/"} [:span.fa.fa-cogs]])
              (if logged-in?
               [:a {:href "/logout"} [:span.fa.fa-sign-out]]
-              [:a.pure-button.pure-button-primary {:href "/login"} "Login" ])
+              [:a.fa.fa-sign-in {:href "/login"} ])
             ]
             ]
            ]

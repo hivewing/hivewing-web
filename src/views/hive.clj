@@ -21,6 +21,10 @@
        :selected? (= current-page :data)
         :text "Data"
         :disabled? (not can-manage?)}
+      {:href (paths/hive-processing-path hu)
+       :selected? (= current-page :processing)
+        :text "Processing"
+        :disabled? (not can-manage?)}
       )))
 
 (defn hive-image-url
@@ -112,6 +116,21 @@
        (if (empty? data-keys)
          [:tr.center [:h3 "No Data"]])
         (map #(render-data-row req hive % )  (sort-by first (map identity data-keys)))
+      ]
+    ]
+  ])
+
+(defn processing
+  [req hive processing-stages]
+  [:div
+    [:h1 "Hive Processing Stages"]
+    [:p "These are the processing stages associated with this hive"]
+
+    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:tbody
+       (if (empty? processing-stages)
+         [:tr.center [:h3 "No Stages"]])
+        (map #(vector :tr %)  (sort-by :created_at processing-stages))
       ]
     ]
   ])
