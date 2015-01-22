@@ -32,3 +32,7 @@
 (defn hive-data-path [hu] ( str (hive-path hu) "/data"))
 (defn hive-data-value-path [hu dn] ( str (hive-path hu) "/data/" dn))
 (defn hive-processing-path [hu] ( str (hive-path hu) "/processing"))
+(defn hive-processing-new-choose-stage-path [hu] ( str (hive-path hu) "/processing/new-stage"))
+(defn hive-processing-new-stage-path [hu stgnm] ( str (hive-path hu) "/processing/stage/" stgnm "/new"))
+(defn hive-processing-create-stage-path [hu stgnm] ( str (hive-path hu) "/processing/stage/" stgnm "/create"))
+(defn hive-processing-delete-stage-path [hu stgnm] ( str (hive-path hu) "/processing/stage/" stgnm "/delete"))

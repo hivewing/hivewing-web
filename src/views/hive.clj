@@ -126,11 +126,119 @@
     [:h1 "Hive Processing Stages"]
     [:p "These are the processing stages associated with this hive"]
 
+    [:a.pure-button.pure-button-primary
+     {:href (paths/hive-processing-new-choose-stage-path (:uuid hive))} "New Stage"]
+
     [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:thead
+        [:tr
+          [:td "Type" ]
+          [:td "Parameters"]
+          [:td "&nbsp;"]
+         ]
+       ]
+
       [:tbody
        (if (empty? processing-stages)
-         [:tr.center [:h3 "No Stages"]])
-        (map #(vector :tr %)  (sort-by :created_at processing-stages))
+         [:tr.center [:td {:colspan 3} [:h3 "No Stages"]]])
+       (map #(vector
+               :tr
+               [:td (:stage_type %)]
+               [:td (str (:params %) )]
+               [:td
+                [:form {:action (paths/hive-processing-delete-stage-path (:uuid hive) (:uuid %))
+                        :method "post"}
+                 (helpers/anti-forgery-field)
+                 [:button.pure-button "Delete"]]]
+               ) processing-stages)
       ]
     ]
   ])
+
+(defn processing-new-choose-stage
+  [req hive stage-specs]
+  [:div
+    [:h1 "New Hive Processing Stage"]
+
+    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+      [:thead
+        [:tr
+         [:td "Name"]
+         [:td "Description"]
+         [:td "&nbsp;"]
+        ]
+      ]
+      [:tbody
+        (map #(vector :tr
+                      [:td (:type %)]
+                      [:td (:description %)]
+                      [:td
+                        [:a.pure-button {:href (paths/hive-processing-new-stage-path (:uuid hive) (name (:type %)))}
+                          "Create"]])  (sort-by :type stage-specs))
+      ]
+    ]
+  ])
+
+(defn processing-stage-field
+  [field-name spec]
+
+  (let [[field-type field-desc field-details]  (get-in spec [:params field-name])
+        post-name (str "stage[" (name field-name) "]")]
+    (case field-type
+      :email
+        [:div
+          [:label (name field-name)]
+          [:input {:placeholder field-desc :required true :type :email :name post-name}]
+        ]
+      :url
+        [:div
+          [:label (name field-name)]
+          [:input {:placeholder field-desc :required true :type :url :name post-name}]
+        ]
+      :string
+        [:div
+          [:label (name field-name)]
+          [:input {:placeholder field-desc :required true :type :string :name post-name}]
+        ]
+      :integer
+        [:div
+          [:label (name field-name)]
+          [:input {:placeholder field-desc :required true :type :number :name post-name}]
+        ]
+      :data-stream
+        [:div
+          [:label (name field-name)]
+          [:select {:name (str post-name "[source]")}
+           (map #(vector :option {:value %} %) ["worker" "hive"])
+           ]
+          [:input {:placeholder field-desc :required true :type :string :name (str post-name "[data-key]")}]
+        ]
+      :enum
+        [:div
+          [:label (name field-name)]
+          [:select {:name post-name}
+            (map #(vector :option {:value (name %)} (name %)) field-details)
+           ]
+        ]
+      )))
+
+(defn processing-new-stage
+  [req hive hive-stage-spec]
+  [:div
+    [:h1 "Create " (name (:type hive-stage-spec)) " Stage"]
+    [:p (:description hive-stage-spec)]
+    (let [param-fields (:params hive-stage-spec)
+          input        (:in param-fields)
+          ]
+      [:form.pure-form.pure-form-stacked {:method "post"
+                                          :action (paths/hive-processing-create-stage-path (:uuid hive) (name (:type hive-stage-spec))) }
+        (helpers/anti-forgery-field)
+        [:fieldset
+          (map #(processing-stage-field % hive-stage-spec)
+               ;; Sort :in to the top
+               (sort-by #(if (= :in %) "a" (str "z" %)) (keys param-fields)))
+        ]
+        [:button.pure-button.pure-button-primary {:type :submit} "Create"]
+       ]
+      )
+    ])

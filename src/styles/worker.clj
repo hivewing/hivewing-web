@@ -2,7 +2,6 @@
   (:require
    [styles.colors :as colors]
    [styles.fonts :as fonts]
-   [styles.buttons :as buttons]
    [styles.flash :as flash]
    [styles.helpers :as helpers]
    [styles.forms :as forms]

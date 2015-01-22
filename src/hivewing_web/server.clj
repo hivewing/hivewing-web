@@ -20,7 +20,9 @@
                   :content-types true
                   :not-modified-responses true
              }
-                  )]
+                  )
+        app-defaults (assoc-in app-defaults [:params :nested] true)
+        ]
 
       (->
         (wrap-defaults
