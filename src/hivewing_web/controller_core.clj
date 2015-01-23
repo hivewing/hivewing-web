@@ -6,7 +6,7 @@
     [ring.util.request :as ring-request]
     [ring.util.response :as r]
     [ring.util.codec :as ring-codec]
-    [hivewing-web.system-controller :as system]
+    [hivewing-web.paths :as paths]
     [clojurewerkz.urly.core :as u]))
 
 ;; (pprint/pprint (macroexpand '(with-required-parameters req [happy gilmore] (println "yay"))))
@@ -103,26 +103,11 @@
      (str (-> (u/url-like url-string)
             (u/mutate-query query))))))
 
-(defn same-url-with-new-params
-  [base-url added-params]
-  (let [url (u/url-like base-url)
-        current-query-str (or (u/query-of url))
-        current-query (if (empty? current-query-str) {} (clojure.walk/keywordize-keys (ring-codec/form-decode current-query-str)))
-        merged-query (merge (clojure.walk/keywordize-keys current-query )
-                            (clojure.walk/keywordize-keys added-params)
-                            ;; Get rid of these ALWAYS
-                            {:__anti-forgery-token nil})
-
-        merged-query (into {} (filter (comp not nil? val) merged-query))
-        new-query  (ring-codec/form-encode merged-query)
-        new-url (u/mutate-query url new-query)
-        ]
-    (str new-url)))
 
 (defn go-to
   ([base-url] (go-to base-url {}))
   ([base-url added-params]
-    (let [url (same-url-with-new-params base-url added-params)]
+    (let [url (paths/add-params-to-url base-url added-params)]
       (r/redirect url))))
 
 (defn login-and-return

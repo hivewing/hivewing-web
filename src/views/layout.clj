@@ -1,5 +1,7 @@
 (ns views.layout
-  (:require [hivewing-web.session :as sess])
+  (:require [hivewing-web.session :as sess]
+            [ring.util.request :as ring-request]
+            [hivewing-web.paths :as paths])
   (:use hiccup.core
         hiccup.util
         hiccup.page
@@ -86,7 +88,7 @@
               [:a {:href "/"} [:span.fa.fa-cogs]])
              (if logged-in?
               [:a {:href "/logout"} [:span.fa.fa-sign-out]]
-              [:a.fa.fa-sign-in {:href "/login"} ])
+              [:a.fa.fa-sign-in {:href (paths/login-path :return-to (ring-request/request-url req))} ])
             ]
             ]
            ]

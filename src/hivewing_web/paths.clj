@@ -1,9 +1,31 @@
 (ns hivewing-web.paths
   (:require [ring.util.codec :as ring-codec]
+            [ring.util.request :as ring-request]
+            [clojurewerkz.urly.core :as u]
             ))
+
+(defn add-params-to-url
+  [base-url added-params]
+  (let [url (u/url-like base-url)
+        current-query-str (or (u/query-of url))
+        current-query (if (empty? current-query-str) {} (clojure.walk/keywordize-keys (ring-codec/form-decode current-query-str)))
+        merged-query (merge (clojure.walk/keywordize-keys current-query )
+                            (clojure.walk/keywordize-keys added-params)
+                            ;; Get rid of these ALWAYS
+                            {:__anti-forgery-token nil})
+
+        merged-query (into {} (filter (comp not nil? val) merged-query))
+        new-query  (ring-codec/form-encode merged-query)
+        new-url (u/mutate-query url new-query)
+        ]
+    (str new-url)))
 
 (defn apiary-path []
   "/apiary")
+
+(defn login-path
+  [ & args ]
+  (apply add-params-to-url "/login" (apply hash-map args)))
 
 (defn apiary-manage-path []
   (str (apiary-path) "/manage"))
