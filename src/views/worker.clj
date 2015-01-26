@@ -299,9 +299,9 @@
 
 (defn logs [req hive worker current-task start-at tasks log-messages]
   (let [current-url (ring-request/request-url req)
-        rewind-link (if start-at (controller-core/same-url-with-new-params current-url {:worker-logs-start nil}) nil)
+        rewind-link (if start-at (paths/add-params-to-url current-url {:worker-logs-start nil}) nil)
         next-start-at (ctimec/to-long (:at (last log-messages)))
-        next-link (controller-core/same-url-with-new-params current-url {:worker-logs-start next-start-at})
+        next-link (paths/add-params-to-url current-url {:worker-logs-start next-start-at})
         ]
     [:div.worker-logs
       [:h1 "Logs"]
