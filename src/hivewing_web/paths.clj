@@ -4,6 +4,7 @@
             [lib.paths :as lib]
             ))
 
+(lib/defpath logout-path [] "logout")
 (lib/defpath login-path [] "login")
 (lib/defpath apiary-path [] "apiary")
 (lib/defpath apiary-manage-path [] (apiary-path) "manage")

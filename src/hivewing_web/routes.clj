@@ -13,10 +13,10 @@
   "Route for Hivewing-Web!"
   ;; Root Request
   (lib/hw-route GET "/" home/index)
-  (lib/hw-route GET  "/login" login/login :post-to "/login")
+  (lib/hw-route GET  (paths/login-path) login/login :post-to "/login")
 
-  (lib/hw-route POST "/login"  login/do-login)
-  (lib/hw-route GET  "/logout"  login/logout)
+  (lib/hw-route POST (paths/login-path)  login/do-login)
+  (lib/hw-route GET  (paths/logout-path)  login/logout)
   (lib/hw-route GET  (paths/apiary-path)  apiary/status)
   (lib/hw-route GET  (paths/apiary-manage-path)  apiary/manage)
   (lib/hw-route GET  "/apiary/join"  apiary/join :post-to "/apiary/join")

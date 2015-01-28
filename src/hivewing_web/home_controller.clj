@@ -7,4 +7,4 @@
 (defn index [req]
   {:status 200
    :headers {"Content-Type" "text/html"}
-   :body (layout/render req (home-views/index))})
+   :body (layout/render req (home-views/index) :style :none)})
