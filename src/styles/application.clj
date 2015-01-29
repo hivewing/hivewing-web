@@ -19,8 +19,8 @@
           :width "100%"
           :height "100%"
           :font-family "Dosis,Helvetica,Arial,sans-serif"
-          :color "#fff"
-          :background-color "#000"
+          :color colors/body-text
+          :background-color colors/body-bg
           }]
 
   pulse-keyframes
@@ -68,6 +68,7 @@
   landing-page/all
   [:footer {
     :padding "50px 0"
+    :color  colors/footer-color
     :background colors/footer-background
     }]
   )

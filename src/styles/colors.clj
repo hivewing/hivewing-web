@@ -3,20 +3,28 @@
            [garden.color :as color :refer [hsl rgb]]
            [garden.units :refer [px]]))
 
-(def link-color "#219ab3")
+(def body-bg "#f9f9f9")
+(def body-text "#222")
+(def link-color "#0773A1");;"#219ab3")
 (def link-hover-color "#11505d")
 
-(def header-background "#ffbf00");;"#00a67C");;"#b5c8a9")
+(def header-background "#00a67C");;"#b5c8a9")
 (def footer-background header-background) ;;"#3d6026")
+(def footer-color body-bg)
 
-(def navbar-toggle-color "#fff")
-(def navbar-link-color "#fff")
+(def navbar-toggle-color body-bg);;"#fff")
+(def navbar-link-color body-bg);;"#fff")
 (def navbar-li-hover-background "rgba(255,255,255,.3)")
 (def navbar-top-collapse-background header-background)
 
-(def intro-color "#fff")
-(def intro-background-color "#000")
-(def intro-color-more "#fff")
+(def intro-color "#eee")
+(def intro-background-color "#fff000")
+(def intro-color-more "#eee")
+(def landing-section-feature-block "#0773a1")
+(def landing-section-border "#f7f7f7")
+(def landing-section-odd-background "#0773a1")
+(def landing-section-odd-color body-bg)
+
 
 
 

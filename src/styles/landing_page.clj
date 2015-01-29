@@ -12,11 +12,10 @@
     [:.navbar-custom {
                       :margin-bottom 0
                       :border-bottom "1px solid rgba(255,255,255,.3)"
-                      :text-transform :smallcase
                       :font-family "Dosis,Helvetica,Arial,sans-serif"
-                      :background-color colors/navbar-background
-                      :text-shadow "0px 0px 20px #000"
-                      }]
+                      :background-color colors/navbar-top-collapse-background
+                      }
+    ]
 
     [:.navbar-custom
      [:.navbar-brand {
@@ -57,7 +56,7 @@
 
 
 
-    [(at-media {:min-width "767px"})
+   (at-media {:min-width "767px"}
      [:.navbar {
                 :padding "20px 0"
                 :border-bottom 0
@@ -77,7 +76,8 @@
      [:.navbar-custom.top-nav-collapse {
                                         :border-bottom (str "1px solid "colors/navbar-li-hover-background)
                                         }]
-     ]
+    )
+
     [:.intro {
       :display :table
       :width "100%"
@@ -96,17 +96,17 @@
       [:.intro-body {
         :display :table-cell
         :vertical-align :middle
-        :box-shadow "inset 0px -30px 50px rgba(0,0,0,0.9)"
         }
         [:.brand-heading { :font-size "40px"
                            :font-weight 100
-                           :text-shadow "0px 0px 100px #000"}]
+                           :text-shadow "0px 0px 100px #000"}
+        ]
         [:.intro-text {:font-size "18px"} ]
 
       ]
     ]
 
-    [(at-media {:min-width "767px"})
+    (at-media {:min-width "767px"}
       [:.intro {
           :height "100%"
           :padding "0"
@@ -116,7 +116,7 @@
           [:.intro-text {:font-size "25px"}]
         ]
       ]
-    ]
+    )
 
     [:.btn-circle {
        :width "70px"
@@ -156,9 +156,90 @@
         }]
     ]
 
-    [:.content-section { :padding-top "100px" }]
-
-    [(at-media {:min-width "767px"})
-      [:.content-section { :padding-top "250px" }]
+    [:.content-section {
+                        :padding-top "100px"
+                       }
+      [:.feature-point-row { :padding "0 25px" }]
+      [:.feature-point
+        {:display :inline-block}
+        [:.wrapper {
+          :margin "15px"
+          :padding "15px"
+          :-webkit-transition "all .3s ease-in-out"
+          :-moz-transition "all .3s ease-in-out"
+          :transition "all .3s ease-in-out"
+         }
+           ["&:hover" {
+                     :background "#fff"
+                      }]
+           [:h4 {
+                 :padding-bottom :10px
+                 :border-bottom (str "3px solid " colors/landing-section-feature-block)
+                 :margin-bottom :10px
+                 }]
+           [:p {:font-size "14px"}]
+         ]
+       ]
     ]
+
+
+    [".content-section.odd" {
+      :padding-top "100px"
+      :padding-bottom "0px"
+      :margin-top "50px"
+      :margin-bottom "20px"
+      :color colors/landing-section-odd-color
+      :background colors/landing-section-odd-background
+      :border-top (str "1px solid " colors/landing-section-border)
+      :border-bottom (str "1px solid " colors/landing-section-border)
+      }
+    ]
+
+    (at-media {:min-width "767px"}
+      [:.content-section { :padding-top "125px"
+                           :padding-bottom "125px"}]
+    )
+
+    [:.btn {
+     :text-transform :uppercase
+     :font-family "Dosis,Helvetica,Arial,sans-serif"
+     :font-weight 400
+     :-webkit-transition "all .3s ease-in-out"
+     :-moz-transition "all .3s ease-in-out"
+     :transition "all .3s ease-in-out"
+    }]
+    [:.btn-default {
+      :border (str "1px solid " colors/link-color)
+      :color colors/link-color
+      :background-color :transparent
+      }]
+
+    [:.btn-default:hover
+     :.btn-default:focus {
+      :outline 0
+      :color "#000"
+      :background-color colors/link-color
+    }]
+
+    [:ul.banner-social-buttons {
+      :margin-top 0
+      }]
+
+    (at-media {:max-width "1199px"}
+      [:ul.banner-social-buttons {
+        :margin-top "15px"
+      }])
+
+    (at-media {:max-width "767px"}
+      [:ul.banner-social-buttons
+       [:li {
+        :display :block
+        :margin-bottom "20px"
+        :padding 0
+        }]
+
+       [:li:last-child {
+         :margin-bottom 0
+        }]
+       ])
   ])
