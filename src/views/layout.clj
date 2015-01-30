@@ -1,7 +1,6 @@
 (ns views.layout
   (:require [hivewing-web.session :as sess]
             [views.layouts.default :as default]
-            [views.layouts.side-menu :as side-menu]
             [views.layouts.single :as single]
             [hivewing-web.paths :as paths])
   (:use hiccup.core
@@ -43,13 +42,12 @@
         [:script {:src "//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"}]
         [:script {:src "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"}]
         [:script {:src "/js/jquery.easing.min.js" }]
-        ;; Lets hide those flash messages!
-        [:script "$(document).ready(function() {$('#flash').delay(5000).slideUp(1000);});"]
-
       ]
       (case style
-        :side-menu (side-menu/layout req content params)
         :default   (default/layout req content params)
         :none      content
         :single    (single/layout req content params)
-      ))))
+      )
+      ;; Lets hide those flash messages!
+      [:script "$(document).ready(function() {$('#flash').delay(5000).slideUp(1000);});"]
+      )))

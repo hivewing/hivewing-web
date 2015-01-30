@@ -6,72 +6,65 @@
         hiccup.page
         hiccup.def))
 
-(defn side-menu
-  [req current-page can-manage?]
-  (let [hu (:hive-uuid (:params req))]
-    (vector
-      {:href (paths/hive-path hu)
-       :selected? (= current-page :status)
-       :text "Status"}
-      {:href (paths/hive-manage-path hu)
-       :selected? (= current-page :manage)
-        :text "Manage"
-        :disabled? (not can-manage?)}
-      {:href (paths/hive-data-path hu)
-       :selected? (= current-page :data)
-        :text "Data"
-        :disabled? (not can-manage?)}
-      {:href (paths/hive-processing-path hu)
-       :selected? (= current-page :processing)
-        :text "Processing"
-        :disabled? (not can-manage?)}
-      )))
-
 (defn hive-image-url
   [hive-uuid]
     (str "git@images.hivewing.io/" hive-uuid ".git"))
 
 (defn status
   [req hive workers can-manage? system-worker-logs]
-  [:div
-    [:h1 (:name hive) ]
-    [:h3 "Hive Image Repository"]
-    [:p.describe "Push updates to this repository - and they will be deployed to all workers"]
-    [:pre (hive-image-url (:uuid hive)) ]
+  [:div.container-fluid.hive-status
+    [:div.container-fluid
+      [:h2 "Info"]
+      [:dl.dl-horizontal
+        [:dt "Hive Image Repository"]
+        [:dd "Push updates to this repository - and they will be deployed to all workers"]
+        [:dd [:pre (hive-image-url (:uuid hive)) ]]
+        [:dt "Hive Image Branch"]
+        [:dd "When you push an image to the repository for this hive.  Push it to this branch."]
+        [:dd [:pre (:image_branch hive)]]
+      ]]
 
-    [:h3 "Hive Image Branch"]
-      [:p.describe
-         "When you push an image to the repository for this hive.  Push it to this branch."]
-    [:pre (:image_branch hive)]
+    [:div.container-fluid
+      [:h2 "Workers"]
 
-    [:h3 "Workers"]
-    [:table.pure-table
-      (map
-        #(vector :tr
-                  [:td [:a {:href (paths/worker-path (:uuid hive) (:uuid %))} (:name %)]])
-        workers)]
+      [:ul.list-group
+        (map
+          #(vector :li.list-group-item [:a {:href (paths/worker-path (:uuid hive) (:uuid %))} (:name %)])
+          workers)]
+    ]
 
-    [:h3 "System Logs"]
-    [:table.pure-table.pure-table-horozontal.pure-table-striped.logs
-      (map #(vector :tr [:td (:at %)] [:td (:message %)]) system-worker-logs)
-     ]
+    [:div.container-fluid.margin-top-row
+      [:h2 "System Logs"]
+      [:ul.list-group
+        (if (empty? system-worker-logs)
+          [:li.list-group-item.text-center [:span "No system logs available"]])
+
+        (map #(vector :li.list-group-item [:span.col-sm-4 (:at %)] [:span.col-sm-8 (:message %)])
+             system-worker-logs)
+      ]
+    ]
   ])
 
 (defn manage
   [req hive]
-  [:div
-    [:h1 "Manage"]
-    [:form.pure-form.pure-form-stacked {:method "post"}
-      (helpers/anti-forgery-field)
-      [:label "Image Branch"]
-      [:input {:type :text :value (:image_branch hive) :pattern "{1,120}" :name :hive-manage-image-branch}]
+  [:div.container-fluid
+    [:div.container-fluid
+      [:form {:method "post"}
+        (helpers/anti-forgery-field)
+        [:div.input-group
+          [:label "Image Branch"]
+          [:input.form-control {:type :text :value (:image_branch hive) :pattern "{1,120}" :name :hive-manage-image-branch}]
+        ]
 
-      [:label "Name"]
-      [:input {:type :text :value (:name hive) :pattern "{1,120}" :name :hive-manage-name}]
-      [:input.pure-button.pure-button-primary {:value "Save" :type :submit}]
-    ]
-
-    ])
+        [:div.input-group
+          [:label "Name"]
+          [:input.form-control {:type :text :value (:name hive) :pattern "{1,120}" :name :hive-manage-name}]
+        ]
+        [:div.input-group.spaced
+          [:button.btn.btn-primary  {:type :submit} "Save"]
+        ]
+      ]
+    ]])
 
 
 
@@ -106,51 +99,57 @@
 
 (defn data
   [req hive data-keys]
-  [:div
-    [:h1 "Hive Data"]
-    [:p "This data is not associated with a given worker but with an entire hive.
+  [:div.container-fluid
+    [:div.container-fluid
+      [:h2 "Hive Data"]
+      [:p "This data is not associated with a given worker but with an entire hive.
         Data in this collection only comes from data-processing pipelines"]
-
-    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-      [:tbody
-       (if (empty? data-keys)
-         [:tr.center [:h3 "No Data"]])
-        (map #(render-data-row req hive % )  (sort-by first (map identity data-keys)))
+    ]
+    [:div.container-fluid
+      [:table
+        [:tbody
+         (if (empty? data-keys)
+           [:tr.center [:h3 "No Data"]])
+          (map #(render-data-row req hive % )  (sort-by first (map identity data-keys)))
+        ]
       ]
     ]
   ])
 
 (defn processing
   [req hive processing-stages]
-  [:div
-    [:h1 "Hive Processing Stages"]
-    [:p "These are the processing stages associated with this hive"]
-
-    [:a.pure-button.pure-button-primary
+  [:div.container-fluid
+    [:a.btn.btn-primary.pull-right
      {:href (paths/hive-processing-new-choose-stage-path (:uuid hive))} "New Stage"]
+    [:div.container-fluid
+      [:h2 "Hive Processing Stages"]
+      [:p "These are the processing stages associated with this hive"]
+    ]
 
-    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-      [:thead
-        [:tr
-          [:td "Type" ]
-          [:td "Parameters"]
-          [:td "&nbsp;"]
+    [:div.container-fluid
+      [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
+        [:thead
+          [:tr
+            [:td "Type" ]
+            [:td "Parameters"]
+            [:td "&nbsp;"]
+           ]
          ]
-       ]
 
-      [:tbody
-       (if (empty? processing-stages)
-         [:tr.center [:td {:colspan 3} [:h3 "No Stages"]]])
-       (map #(vector
-               :tr
-               [:td (:stage_type %)]
-               [:td (str (:params %) )]
-               [:td
-                [:form {:action (paths/hive-processing-delete-stage-path (:uuid hive) (:uuid %))
-                        :method "post"}
-                 (helpers/anti-forgery-field)
-                 [:button.pure-button "Delete"]]]
-               ) processing-stages)
+        [:tbody
+         (if (empty? processing-stages)
+           [:tr.center [:td {:colspan 3} [:h3 "No Stages"]]])
+         (map #(vector
+                 :tr
+                 [:td (:stage_type %)]
+                 [:td (str (:params %) )]
+                 [:td
+                  [:form {:action (paths/hive-processing-delete-stage-path (:uuid hive) (:uuid %))
+                          :method "post"}
+                   (helpers/anti-forgery-field)
+                   [:button.pure-button "Delete"]]]
+                 ) processing-stages)
+        ]
       ]
     ]
   ])

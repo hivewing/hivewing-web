@@ -6,11 +6,13 @@
         hiccup.def))
 
 (defn login [action return-to]
-    [:form.pure-form.pure-form-stacked {:method "POST" :action action}
-     [:h1 "Login"]
-     (helpers/anti-forgery-field)
-     [:input {:type :hidden :name :return-to :value return-to}]
-     [:input#user_email {:type "email" :placeholder "Email address" :name "user[email]"}]
-     [:input#user_password {:type "password" :placeholder "Password" :name "user[password]"}]
-     [:button.pure-button.pure-button-primary {:type "submit"} "Login"]
+    [:div.wrapper
+      [:form.form-signin {:method "POST" :action action}
+        [:h2.form-signin-heading "Hivewing.io login"]
+        (helpers/anti-forgery-field)
+        [:input {:type :hidden :name :return-to :value return-to}]
+        [:input#user_email.form-control {:type "email" :placeholder "Email address" :name "user[email]"}]
+        [:input#user_password.form-control {:type "password" :placeholder "Password" :name "user[password]"}]
+        [:button.btn.btn-lg.btn-primary.btn-block {:type "submit"} "Login"]
+      ]
     ])

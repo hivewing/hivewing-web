@@ -38,7 +38,10 @@
       (go-to return-to)
       ; If not, show the login page.
       (->
-        (r/response (layout/render req (login-views/login (:post-to args) return-to) :style :single))
+        (r/response (layout/render req
+                                   (login-views/login (:post-to args) return-to)
+                                   :style :single
+                                   :body-class :login))
         (r/header "Content-Type" "text/html; charset=utf-8")))))
 
 (defn do-login

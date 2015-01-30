@@ -3,7 +3,7 @@
 
 (defn layout
   [req content params]
-    [:body.default-layout
+    [:body.single-layout {:class (name (or (:body-class params) :none))}
       (standard-header req)
       (flash req)
       content

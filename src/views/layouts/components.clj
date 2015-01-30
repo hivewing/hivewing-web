@@ -6,35 +6,38 @@
 (defn standard-header
   [req]
   (let [logged-in? (sess/current-user req)]
-    [:nav.navbar-default.navbar-fixed-top
+    [:nav.navbar.navbar-default.navbar-hivewing
      [:div.container-fluid
        [:div.navbar-header
         [:a.navbar-brand {:href "/"}
-          [:span "Hivewing.io"]
+          [:span "Hivewing"]
+          [:span.light ".io"]
+          [:div.hexagon-xs "&nbsp;"]
         ]
        ]
-       [:p.navbar-text.navbar-right
-         (if logged-in?
-            [:a {:href "/"} [:span.fa.fa-cogs]])
-         (if logged-in?
-            [:a {:href (paths/logout-path)} [:span.fa.fa-sign-out]]
-            [:a.fa.fa-sign-in {:href (paths/login-path :return-to (ring-request/request-url req))} ])
+       [:div.navbar-right.collapse.navbar-collapse.navbar-main-collapse
+         [:ul.nav.navbar-nav
+           (if logged-in?
+            [:li [:a {:href "/"} " Settings"]])
+           (if logged-in?
+            [:li [:a {:href (paths/logout-path)} " Sign Out"]]
+            [:li [:a {:href (paths/login-path :return-to (ring-request/request-url req))} "Sign In"]])
          ]
+      ]
      ]
     ]
   ))
 
 (defn standard-footer
   [req]
-  [:footer.navbar.navbar-fixed-bottom
+  [:footer.navbar.navbar-fixe-bottom.navbar-collapse
     [:div.footer-copyright
      [:div.container "© 2015 Copyright Hivewing.io"]]]
   )
-
 
 (defn flash
   [req]
   (let [flash (:flash req)]
     (if (not (empty? flash))
-      [:div#flash.flash flash]
+      [:div#flash.flash {:onclick "$('#flash').remove();"} flash]
   )))

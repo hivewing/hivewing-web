@@ -8,7 +8,13 @@
 (def link-color "#0773A1");;"#219ab3")
 (def link-hover-color "#11505d")
 
+(def button-primary link-color)
+(def button-primary-text body-bg)
+
+(def single-page-body-bg "#fff")
+
 (def header-background "#00a67C");;"#b5c8a9")
+(def header-text body-bg)
 (def footer-background header-background) ;;"#3d6026")
 (def footer-color body-bg)
 
@@ -25,9 +31,14 @@
 (def landing-section-odd-background "#0773a1")
 (def landing-section-odd-color body-bg)
 
+(def back-link-bg "rgba(77,152,184,0.5)")
+(def back-link-border "rgba(77,152,184,1)")
+(def back-link-color body-bg)
 
-
-
+(def flash-bg "#fff")
+(def flash-text body-text)
+(def flash-border "#0773a1")
+(def active-nav-pills-text body-text)
 
 
 (def logo-color "#E6E9E5");;A6B0A9");;00741E");;20512d")

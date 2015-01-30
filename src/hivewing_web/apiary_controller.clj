@@ -16,14 +16,27 @@
             [clojure.pprint :as pprint]
      ))
 
+(defn sub-menu [req current]
+  "Determine the submenu listing for the apiary-controller!"
+  [{:href (paths/apiary-path)
+    :text "Status"
+    :active (= current :status)}
+   {:href (paths/apiary-manage-path)
+    :text "Manage"
+    :active (= current :manage)}
+  ])
+
 (defn status
   [req & args]
   (with-preconditions req [bk         (session/current-user req)]
     (let [ hive-uuids (map :hive_uuid (hm/hive-managers-managing (:uuid bk)))
            hives      (map #(hive/hive-get %) hive-uuids)]
       (render (layout/render req (views/status req hives)
-                                   :style :side-menu
-                                   :side-menu (views/side-menu req :status)
+                                  :style :default
+                                  :sub-menu (sub-menu req :status)
+                                  :current-name "Apiary"
+                                  :back-link nil
+                                  :body-class :apiary
                                   )))))
 (defn manage
   [req & args]
@@ -33,8 +46,11 @@
             hives      (map #(hive/hive-get %) hive-uuids)
           ]
       (render (layout/render req (views/manage req)
-                                   :style :side-menu
-                                   :side-menu (views/side-menu req :manage)
+                                  :style :default
+                                  :sub-menu (sub-menu req :manage)
+                                  :current-name "Apiary"
+                                  :back-link nil
+                                  :body-class :apiary
                                   )))))
 
 (defn join
@@ -59,7 +75,9 @@
               hives      (map #(hive/hive-get %) hive-uuids)
               ]
           (->
-            (r/response (layout/render req (views/join (:post-to args) hives worker-url) :style :single))
+            (r/response (layout/render req (views/join (:post-to args) hives worker-url)
+                                       :style :single
+                                       :body-class :apiary-join))
             (r/header "Content-Type" "text/html; charset=utf-8")))
         ; Not logged in, return to login, with a return to, to here.
         (login-and-return (ring-request/request-url req)))))))

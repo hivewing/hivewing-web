@@ -41,9 +41,9 @@
                     :background-color colors/navbar-li-hover-background
                     }]
        [:a {
-            :-webkit-transition "background .3s ease-in-out"
-            :-moz-transition "background .3s ease-in-out"
-            :transition "background .3s ease-in-out"
+            :-webkit-transition "all .3s ease-in-out"
+            :-moz-transition "all .3s ease-in-out"
+            :transition "all .3s ease-in-out"
             }
         ["&:hover" "&:focus" "&:active" {
                                          :outline 0
@@ -62,16 +62,16 @@
                 :border-bottom 0
                 :letter-spacing "1px"
                 :background "0 0"
-                :-webkit-transition "background .5s ease-in-out,padding .5s ease-in-out"
-                :-moz-transition "background .5s ease-in-out,padding .5s ease-in-out"
-                :transition "background .5s ease-in-out,padding .5s ease-in-out"
+                :-webkit-transition "all .5s ease-in-out,padding .5s ease-in-out"
+                :-moz-transition "all .5s ease-in-out,padding .5s ease-in-out"
+                :transition "all .5s ease-in-out,padding .5s ease-in-out"
                 }]
 
      [:.top-nav-collapse {
                           :padding 0
                           :background-color colors/navbar-top-collapse-background
                           }
-      ]
+     ]
 
      [:.navbar-custom.top-nav-collapse {
                                         :border-bottom (str "1px solid "colors/navbar-li-hover-background)
@@ -128,9 +128,9 @@
        :font-size "40px"
        :color colors/intro-color-more
        :background "0 0"
-       :-webkit-transition "background .3s ease-in-out"
-       :-moz-transition "background .3s ease-in-out"
-       :transition "background .3s ease-in-out"
+       :-webkit-transition "all .3s ease-in-out"
+       :-moz-transition "all .3s ease-in-out"
+       :transition "all .3s ease-in-out"
       }
       ["&:hover" "&:focus" {
           :outline 0
@@ -176,16 +176,24 @@
                  :padding-bottom :10px
                  :border-bottom (str "3px solid " colors/landing-section-feature-block)
                  :margin-bottom :10px
+                 :text-align :center
                  }]
-           [:p {:font-size "14px"}]
-         ]
-       ]
+           [:p {:font-size "14px"
+                :text-align :left}]
+           [:ul {:text-align :left
+                 :margin :15px
+                 :padding 0}]
+        ]
+      ]
     ]
 
+    (at-media {:max-width "767px"}
+      [:.feature-point { :width "100%" }]
+      )
 
     [".content-section.odd" {
       :padding-top "100px"
-      :padding-bottom "0px"
+      :padding-bottom "100px"
       :margin-top "50px"
       :margin-bottom "20px"
       :color colors/landing-section-odd-color
@@ -241,5 +249,5 @@
        [:li:last-child {
          :margin-bottom 0
         }]
-       ])
+      ])
   ])

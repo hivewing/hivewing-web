@@ -21,6 +21,33 @@
   (hm/hive-managers-managing bk)
   )
 
+(defn sub-menu [req current-page can-manage?]
+  "Determine the submenu listing for the apiary-controller!"
+  (let [hu (:hive-uuid (:params req))]
+    [
+    {:href (paths/hive-path hu)
+     :active (= current-page :status)
+     :text "Status"}
+    {:href (paths/hive-manage-path hu)
+     :active (= current-page :manage)
+     :text "Manage"
+     :disabled (not can-manage?)}
+    {:href (paths/hive-data-path hu)
+     :active (= current-page :data)
+     :text "Data"
+     :disabled (not can-manage?)}
+    {:href (paths/hive-processing-path hu)
+     :active (= current-page :processing)
+     :text "Processing"
+     :disabled (not can-manage?)}
+  ]))
+
+(defn back-link [req]
+  "Determine the breadcrumbs for the apiary controller"
+  {:href (paths/apiary-path)
+    :text "Apiary"}
+  )
+
 (defn status
   [req & args]
   (with-beekeeper req bk
@@ -34,10 +61,11 @@
           ]
         (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req (views/status req hive workers can-manage? system-worker-logs)
-                                        :style :side-menu
-                                        :side-menu (views/side-menu req :status can-manage?)
-                                        :back-link { :href (paths/apiary-path)
-                                                     :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :status can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))))
 (defn show-data-values
   [req & args]
@@ -51,10 +79,11 @@
           ]
         (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req (views/show-data-values req hive data-name data-values)
-                                        :style :side-menu
-                                        :side-menu (views/side-menu req :data can-manage?)
-                                        :back-link { :href (paths/apiary-path)
-                                                     :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :data can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))))
 
 (defn data
@@ -68,10 +97,11 @@
           ]
         (let [can-manage? (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req (views/data req hive data-keys)
-                                        :style :side-menu
-                                        :side-menu (views/side-menu req :data can-manage?)
-                                        :back-link { :href (paths/apiary-path)
-                                                     :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :data can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))))
 
 
@@ -100,10 +130,11 @@
           hive    (hive/hive-get hive-uuid)
           ]
       (render (layout/render req (views/manage req hive)
-                                    :style :side-menu
-                                    :side-menu (views/side-menu req :manage can-manage?)
-                                    :back-link { :href (paths/apiary-path)
-                                                 :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :manage can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                   )))))
 
 (defn processing-new-choose-stage
@@ -116,10 +147,11 @@
           hive-stage-specs  (remove :hidden (map :spec  (vals (hds/hive-data-stages-specs))))
           ]
       (render (layout/render req (views/processing-new-choose-stage req hive hive-stage-specs)
-                                      :style :side-menu
-                                      :side-menu (views/side-menu req :processing can-manage?)
-                                      :back-link { :href (paths/apiary-path)
-                                                   :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :processing can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))
 (defn processing-new-stage
   [req & args]
@@ -132,10 +164,11 @@
           hive-stage-spec (get-in hive-stages [(keyword stage-name) :spec])
           ]
       (render (layout/render req (views/processing-new-stage req hive hive-stage-spec)
-                                      :style :side-menu
-                                      :side-menu (views/side-menu req :processing can-manage?)
-                                      :back-link { :href (paths/apiary-path)
-                                                   :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :processing can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))
 
 (defn clean-stage-param
@@ -208,8 +241,9 @@
           hive-stages (hds/hive-data-stages-index hive-uuid)
           ]
       (render (layout/render req (views/processing req hive hive-stages)
-                                      :style :side-menu
-                                      :side-menu (views/side-menu req :processing can-manage?)
-                                      :back-link { :href (paths/apiary-path)
-                                                   :text "Apiary" }
+                                        :style :default
+                                        :sub-menu (sub-menu req :processing can-manage?)
+                                        :current-name (:name hive)
+                                        :back-link (back-link req)
+                                        :body-class :hive
                                     )))))
