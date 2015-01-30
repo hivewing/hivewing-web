@@ -9,10 +9,10 @@
 (defn status
   [req hives]
   [:div.container-fluid
-    [:div.container-fluid
+    [:div.row
       [:p "Your apiary is where all of your devices and hives live."]
     ]
-    [:div.container-fluid
+    [:div.row
       [:h2 "Hives"]
       [:ul.list-group
         (map
@@ -26,10 +26,11 @@
 (defn manage
   [req]
   [:div.container-fluid
-    [:div.container-fluid
+    [:div.row
+      [:h2 "Update apiary"]
       [:p "Your apiary is where all of your devices and hives live."]
     ]
-    [:div.container-fluid
+    [:div.row
       [:h2 "Not much just yet."]]
    ])
 

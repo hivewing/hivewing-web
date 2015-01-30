@@ -131,7 +131,7 @@
           ]
         ]
         [:&.current {
-                     :margin-right "20px" }
+                     :margin-right "15px" :margin-left "15px" }
           [:a {:background colors/body-bg :color colors/body-text :border 0}]
          ]
         ["&>a" { :border-radius 0 } ]
@@ -224,6 +224,10 @@
       :cursor :pointer
     }]
 
+  [:.default-content-body {
+    :width "100%"
+    :padding "20px 40px"
+                           }]
   landing-page/all
   login-page/all
   apiary/all

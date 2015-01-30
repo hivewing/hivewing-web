@@ -31,7 +31,7 @@
 (def landing-section-odd-background "#0773a1")
 (def landing-section-odd-color body-bg)
 
-(def back-link-bg "rgba(77,152,184,0.5)")
+(def back-link-bg "rgb(77,152,184)")
 (def back-link-border "rgba(77,152,184,1)")
 (def back-link-color body-bg)
 

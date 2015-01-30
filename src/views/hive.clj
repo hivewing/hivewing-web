@@ -13,7 +13,7 @@
 (defn status
   [req hive workers can-manage? system-worker-logs]
   [:div.container-fluid.hive-status
-    [:div.container-fluid
+    [:div.row
       [:h2 "Info"]
       [:dl.dl-horizontal
         [:dt "Hive Image Repository"]
@@ -24,7 +24,7 @@
         [:dd [:pre (:image_branch hive)]]
       ]]
 
-    [:div.container-fluid
+    [:div.row
       [:h2 "Workers"]
 
       [:ul.list-group
@@ -33,7 +33,7 @@
           workers)]
     ]
 
-    [:div.container-fluid.margin-top-row
+    [:div.row.margin-top-row
       [:h2 "System Logs"]
       [:ul.list-group
         (if (empty? system-worker-logs)
@@ -48,19 +48,20 @@
 (defn manage
   [req hive]
   [:div.container-fluid
-    [:div.container-fluid
+    [:div.row
+      [:h2 "Update Hive"]
       [:form {:method "post"}
         (helpers/anti-forgery-field)
-        [:div.input-group
+        [:div.form-group
           [:label "Image Branch"]
           [:input.form-control {:type :text :value (:image_branch hive) :pattern "{1,120}" :name :hive-manage-image-branch}]
         ]
 
-        [:div.input-group
+        [:div.form-group
           [:label "Name"]
           [:input.form-control {:type :text :value (:name hive) :pattern "{1,120}" :name :hive-manage-name}]
         ]
-        [:div.input-group.spaced
+        [:div.form-group.spaced
           [:button.btn.btn-primary  {:type :submit} "Save"]
         ]
       ]
@@ -100,12 +101,12 @@
 (defn data
   [req hive data-keys]
   [:div.container-fluid
-    [:div.container-fluid
+    [:div.row
       [:h2 "Hive Data"]
       [:p "This data is not associated with a given worker but with an entire hive.
         Data in this collection only comes from data-processing pipelines"]
     ]
-    [:div.container-fluid
+    [:div.row
       [:table
         [:tbody
          (if (empty? data-keys)
@@ -121,59 +122,44 @@
   [:div.container-fluid
     [:a.btn.btn-primary.pull-right
      {:href (paths/hive-processing-new-choose-stage-path (:uuid hive))} "New Stage"]
-    [:div.container-fluid
+    [:div.row
       [:h2 "Hive Processing Stages"]
       [:p "These are the processing stages associated with this hive"]
     ]
 
-    [:div.container-fluid
-      [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-        [:thead
-          [:tr
-            [:td "Type" ]
-            [:td "Parameters"]
-            [:td "&nbsp;"]
-           ]
-         ]
-
-        [:tbody
-         (if (empty? processing-stages)
-           [:tr.center [:td {:colspan 3} [:h3 "No Stages"]]])
-         (map #(vector
-                 :tr
-                 [:td (:stage_type %)]
-                 [:td (str (:params %) )]
-                 [:td
-                  [:form {:action (paths/hive-processing-delete-stage-path (:uuid hive) (:uuid %))
+    [:div.row
+      [:ul.list-group
+        (map #(vector :li.list-group-item.clearfix
+                      [:span.pull-right
+                       [:form {:action (paths/hive-processing-delete-stage-path (:uuid hive) (:uuid %))
                           :method "post"}
-                   (helpers/anti-forgery-field)
-                   [:button.pure-button "Delete"]]]
-                 ) processing-stages)
-        ]
+                           (helpers/anti-forgery-field)
+                           [:button.pure-button "Delete"]]]
+                      [:span.lead [:strong (:stage_type %)]]
+                      [:br]
+                      [:span [:pre (pr-str (:params %)) ]])
+                 processing-stages)
+         (if (empty? processing-stages)
+           [:li.list-group-item "No Stages"])
       ]
     ]
   ])
 
 (defn processing-new-choose-stage
   [req hive stage-specs]
-  [:div
-    [:h1 "New Hive Processing Stage"]
+  [:div.container-fluid
+    [:div.row
+      [:h2 "New Hive Processing Stage"]
+    ]
 
-    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-      [:thead
-        [:tr
-         [:td "Name"]
-         [:td "Description"]
-         [:td "&nbsp;"]
-        ]
-      ]
-      [:tbody
-        (map #(vector :tr
-                      [:td (:type %)]
-                      [:td (:description %)]
-                      [:td
-                        [:a.pure-button {:href (paths/hive-processing-new-stage-path (:uuid hive) (name (:type %)))}
-                          "Create"]])  (sort-by :type stage-specs))
+    [:div.row
+      [:ul.list-group
+        (map #(vector :li.list-group-item.clearfix
+                      [:span.pull-right [:a.btn.btn-primary {:href (paths/hive-processing-new-stage-path (:uuid hive) (name (:type %)))} "Create"]]
+                      [:span.lead [:strong (:type %)]]
+                      [:br]
+                      [:span (:description %)])
+             (sort-by :type stage-specs))
       ]
     ]
   ])
@@ -185,37 +171,37 @@
         post-name (str "stage[" (name field-name) "]")]
     (case field-type
       :email
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:input {:placeholder field-desc :required true :type :email :name post-name}]
+          [:input.form-control {:placeholder field-desc :required true :type :email :name post-name}]
         ]
       :url
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:input {:placeholder field-desc :required true :type :url :name post-name}]
+          [:input.form-control {:placeholder field-desc :required true :type :url :name post-name}]
         ]
       :string
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:input {:placeholder field-desc :required true :type :string :name post-name}]
+          [:input.form-control {:placeholder field-desc :required true :type :string :name post-name}]
         ]
       :integer
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:input {:placeholder field-desc :required true :type :number :name post-name}]
+          [:input.form-control {:placeholder field-desc :required true :type :number :name post-name}]
         ]
       :data-stream
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:select {:name (str post-name "[source]")}
+          [:select.form-control {:name (str post-name "[source]")}
            (map #(vector :option {:value %} %) ["worker" "hive"])
            ]
-          [:input {:placeholder field-desc :required true :type :string :name (str post-name "[data-key]")}]
+          [:input.form-control {:placeholder field-desc :required true :type :string :name (str post-name "[data-key]")}]
         ]
       :enum
-        [:div
+        [:div.form-group
           [:label (name field-name)]
-          [:select {:name post-name}
+          [:select.form-control {:name post-name}
             (map #(vector :option {:value (name %)} (name %)) field-details)
            ]
         ]
@@ -223,21 +209,27 @@
 
 (defn processing-new-stage
   [req hive hive-stage-spec]
-  [:div
-    [:h1 "Create " (name (:type hive-stage-spec)) " Stage"]
-    [:p (:description hive-stage-spec)]
-    (let [param-fields (:params hive-stage-spec)
-          input        (:in param-fields)
-          ]
-      [:form.pure-form.pure-form-stacked {:method "post"
-                                          :action (paths/hive-processing-create-stage-path (:uuid hive) (name (:type hive-stage-spec))) }
-        (helpers/anti-forgery-field)
-        [:fieldset
+  [:div.container-fluid
+    [:div.row
+      [:h2 "Create " (name (:type hive-stage-spec)) " Stage"]
+    ]
+    [:div.row
+      [:p (:description hive-stage-spec)]
+    ]
+    [:div.row
+      (let [param-fields (:params hive-stage-spec)
+            input        (:in param-fields)
+            ]
+        [:form {:method "post" :action (paths/hive-processing-create-stage-path (:uuid hive) (name (:type hive-stage-spec))) }
+          (helpers/anti-forgery-field)
           (map #(processing-stage-field % hive-stage-spec)
-               ;; Sort :in to the top
-               (sort-by #(if (= :in %) "a" (str "z" %)) (keys param-fields)))
-        ]
-        [:button.pure-button.pure-button-primary {:type :submit} "Create"]
-       ]
-      )
+                 ;; Sort :in to the top
+                 (sort-by #(if (= :in %) "a" (str "z" %)) (keys param-fields)))
+
+            [:div.form-group.spaced
+              [:button.btn.btn-primary {:type :submit} "Create"]
+            ]
+         ]
+        )
+      ]
     ])

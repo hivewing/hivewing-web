@@ -36,6 +36,6 @@
                    [:a {:href (:href %)} (:text %)])
                sub-menu)]]
 
-      content
+      [:div.default-content-body content ]
       (standard-footer req)
     ]))
