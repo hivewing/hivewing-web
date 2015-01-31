@@ -25,6 +25,10 @@
   (ctimec/from-long 1420659525859)
   )
 
+(defn back-link [req]
+  { :href (paths/hive-path (:hive-uuid (:params req)))
+    :text "Hive"})
+
 (defn status
   [req & args]
   (with-beekeeper req bk
@@ -43,10 +47,11 @@
           (-> (r/response
               (layout/render req
                              (views/status req hive worker worker-config tasks system-worker-logs worker-task-tracing)
-                             :style :side-menu
-                             :side-menu (views/side-menu req :status can-manage?)
-                             :back-link { :href (paths/hive-path hive-uuid)
-                                          :text "Hive"}))
+                             :style :default
+                             :sub-menu (views/side-menu req :status can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker))
             (r/header "Content-Type" "text/html; charset=utf-8")))))))
 (defn delete-worker
   [req & args]

@@ -39,8 +39,7 @@
         (if (empty? system-worker-logs)
           [:li.list-group-item.text-center [:span "No system logs available"]])
 
-        (map #(vector :li.list-group-item [:span.col-sm-4 (:at %)] [:span.col-sm-8 (:message %)])
-             system-worker-logs)
+        (map helpers/log-list-item system-worker-logs)
       ]
     ]
   ])
@@ -71,21 +70,18 @@
 
 (defn render-data-value-row
   [req hive data-name value]
-    [:tr
-      [:td (:at value)]
-      [:td (:data value)]])
+    [:li.list-group-item
+      [:strong.col-sm-3 (:at value)]
+      [:span.col.sm-8 (:data value)]])
 
 (defn show-data-values
   [req hive data-name data-values]
-    [:div
-     [:h1 (str data-name " Data")]
-     [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-        [:thead
-          [:tr
-            [:th "At"]
-            [:th "Value"]
-            ]]
-        [:tbody
+    [:div.container-fluid
+      [:div.row
+        [:h2 (str data-name " Data")]
+      ]
+      [:div.row
+        [:ul.list-group
           (map #(render-data-value-row req hive data-name % )  (sort-by first (map identity data-values)))
         ]
       ]
@@ -93,10 +89,9 @@
   )
 (defn render-data-row
   [req hive data-name]
-    [:tr
-      [:td
+    [:li.list-group-item
          [:a {:href (paths/hive-data-value-path (:uuid hive) data-name)}
-          data-name]]])
+          data-name]])
 
 (defn data
   [req hive data-keys]
@@ -107,15 +102,26 @@
         Data in this collection only comes from data-processing pipelines"]
     ]
     [:div.row
-      [:table
-        [:tbody
-         (if (empty? data-keys)
-           [:tr.center [:h3 "No Data"]])
-          (map #(render-data-row req hive % )  (sort-by first (map identity data-keys)))
-        ]
+      [:ul.list-group
+       (if (empty? data-keys)
+         [:li.list-group-item.text-center [:span "No Data"]])
+       (map #(render-data-row req hive %)
+          (sort-by first (map identity data-keys)))
       ]
     ]
   ])
+
+(comment
+  (def a {:email "apple@gear.com", :value "2", :test "gt", :in {:hive "mike"}})
+  (map #(vector [:dt (key %)] [:dl (pr-str (val %))]) a)
+  (def hu "12345678-1234-1234-1234-123456789012")
+  (use 'hivewing-core.hive-data)
+  (hivewing-core.hive-data/hive-data-push hu nil "data name" "44")
+)
+
+(defn processing-stage-params
+  [params]
+  (apply concat (map #(vector [:dt (key %)] [:dd (pr-str (val %))]) params)))
 
 (defn processing
   [req hive processing-stages]
@@ -137,7 +143,7 @@
                            [:button.pure-button "Delete"]]]
                       [:span.lead [:strong (:stage_type %)]]
                       [:br]
-                      [:span [:pre (pr-str (:params %)) ]])
+                      [:dl.dl-horizontal (processing-stage-params (:params %))])
                  processing-stages)
          (if (empty? processing-stages)
            [:li.list-group-item "No Stages"])

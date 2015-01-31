@@ -17,22 +17,23 @@
   [req current-page can-manage?]
   (let [wu (:worker-uuid (:params req))
         hu (:hive-uuid (:params req))]
+
     (vector
       {:href (paths/worker-path hu wu)
-        :selected? (= current-page :status)
+        :active (= current-page :status)
         :text "Status"}
       {:href (paths/worker-manage-path hu wu)
-        :selected? (= current-page :manage)
-        :disabled? (not can-manage?)
+        :active (= current-page :manage)
+        :disabled (not can-manage?)
         :text "Manage"}
       {:href (paths/worker-config-path hu wu)
-        :selected? (= current-page :config)
+        :active (= current-page :config)
         :text "Config"}
       {:href (paths/worker-data-path hu wu)
-        :selected? (= current-page :data)
+        :active (= current-page :data)
         :text "Data"}
       {:href (paths/worker-logs-path hu wu)
-        :selected? (= current-page :logs)
+        :active (= current-page :logs)
         :text "Logs"}
       )))
 
@@ -52,43 +53,49 @@
         (json/read-str tasks-str))))
 
 (defn status [req hive worker worker-config tasks system-worker-logs worker-task-tracing]
-  [:div.worker-status
-    [:h1 "Status"]
-
-    [:div.data-listing
-      [:table.pure-table.f-r
-        [:thead
-          [:tr
-            [:th "Task"]
-            [:th "State"]
-            [:th "Tracing"]
-           ]
-        ]
+  [:div.container-fluid
+    [:div.row
+     [:h2 "Info"]
+     [:dl.dl-horizontal
+      [:dt "Connected"]
+      [:dd (if (:connected worker) "Connected" "Disconnected")]
+      [:dt "Last Seen"]
+      [:dd (if (:last_seen worker) (:last_seen worker) "Never seen")]
+      [:dt "Hive Image Ref"]
+      [:dd "configured / current"]
+      [:dd [:span (hive-image-ref (get worker-config ".hive-image" ))]
+            [:span "  /  "]
+            [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
+      ]
+     ]
+    ]
+    [:div.row
+      [:h2 "Tasks"]
+      [:ul.list-item-group
         (if (empty? tasks)
-          [:tr [:td.center {:colspan 3} "None"]]
-          (map #(vector :tr [:td (key %)]
-                            [:td (val %)]
-                            [:td (if (get worker-task-tracing (key %)) "On" "Off")]) tasks))
-       ]
+          [:li.list-group-item.text-center  [:span "No Active Tasks"]])
 
-      [:h3 "Name"]
-      [:span worker]
-      [:span (:name worker)]
-      [:h3 "Connected"]
-      [:span (if (:connected worker) "Connected" "Disconnected")]
-      [:h3 "Last Seen"]
-      [:span (if (:last_seen worker) (:last_seen worker) "Never seen")]
-      [:h3 "Hive Image Ref"
-        [:span.header-sub "configured / current"]]
-      [:span (hive-image-ref (get worker-config ".hive-image" ))]
-      [:span "  /  "]
-      [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
-
-      [:h3 "System Logs"]
-      [:table.pure-table.pure-table-horozontal.pure-table-striped.logs
-        (map #(vector :tr [:td (:at %)] [:td (:message %)]) system-worker-logs)
+          (map #(vector :li.list-group-item
+                          [:span.pull-right.badge {
+                            :class (if (get worker-task-tracing (key %))
+                                        "badge-success") }
+                             "Tracing"]
+                          [:strong  (key %)]
+                          [:span (val %)])
+               tasks)
        ]
-     ]])
+    ]
+
+    [:div.row
+      [:h2 "System Logs"]
+      [:ul.list-item-group
+        (if (empty? system-worker-logs)
+          [:li.list-group-item.text-center [:span "No system logs available"]])
+
+        (map helpers/log-list-item system-worker-logs)
+      ]
+    ]
+  ])
 
 (defn manage [req hive worker tasks worker-task-tracing]
   [:div
