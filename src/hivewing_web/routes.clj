@@ -46,6 +46,8 @@
   (lib/hw-route GET (paths/worker-data-value-path ":hive-uuid" ":worker-uuid" ":data-name") worker/show-data-values)
   (lib/hw-route GET (paths/worker-logs-delta-path ":hive-uuid" ":worker-uuid") worker/logs-delta)
   (lib/hw-route GET (paths/worker-logs-path ":hive-uuid" ":worker-uuid") worker/logs)
+  (lib/hw-route GET (paths/worker-events-path ":hive-uuid" ":worker-uuid") worker/events)
+  (lib/hw-route POST (paths/worker-events-path ":hive-uuid" ":worker-uuid") worker/send-event)
 
   (ANY "*" {:as req} (lib/log-response (system/not-found (lib/log-request req))))
   )

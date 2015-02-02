@@ -5,7 +5,9 @@
             [environ.core :refer [env]]
             ))
 
-(lib/defpath api-docs-path [] (env :hivewing-api-host) "index.html")
+(defn api-docs-path []
+  (str (env :hivewing-api-host) "/index.html"))
+
 (lib/defpath logout-path [] "logout")
 (lib/defpath login-path [] "login")
 (lib/defpath apiary-path [] "apiary")
@@ -22,6 +24,9 @@
 (lib/defpath worker-data-value-path [hu wu dn] (worker-path hu wu) "data" dn)
 (lib/defpath worker-logs-path [hu wu] (worker-path hu wu) "logs")
 (lib/defpath worker-logs-delta-path [hu wu] (worker-path hu wu) "logs" "delta")
+(lib/defpath worker-events-path [hu wu] (worker-path hu wu) "events")
+
+
 (lib/defpath hive-path [hive-uuid] "hives" hive-uuid )
 (lib/defpath hive-manage-path [hu] (hive-path hu) "manage")
 (lib/defpath hive-data-path [hu] (hive-path hu) "data")

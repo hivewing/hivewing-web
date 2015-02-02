@@ -276,3 +276,35 @@
                              :back-link (back-link req)
                              :current-name (:name worker)
                              :body-class :worker)))))))
+
+(defn events
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                               tasks  (keys (worker-config/worker-config-get-tasks worker-uuid))
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)
+                               ]
+        (render (layout/render req
+                         (views/events req hive worker tasks)
+                             :style :default
+                             :sub-menu (views/side-menu req :events can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker))))))
+(defn send-event
+  [req & args]
+  (with-beekeeper req bk
+    (with-required-parameters req [hive-uuid worker-uuid event-task event-name event-value]
+      (with-preconditions req [hive (hive/hive-get hive-uuid)
+                               in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
+                               worker (worker/worker-get worker-uuid)
+                               can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
+
+        (do
+          (worker-events/worker-events-send worker-uuid (keyword (str event-task "." event-name)) event-value)
+            (->
+              (r/redirect (paths/worker-events-path hive-uuid worker-uuid))
+              (assoc :flash (str "Sent event " event-name " to " event-task))))))))

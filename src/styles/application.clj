@@ -1,6 +1,5 @@
 (ns styles.application
  (:require
-   [styles.worker :as worker]
    [styles.colors :as colors]
    [styles.login-page :as login-page]
    [styles.landing-page :as landing-page]
@@ -157,6 +156,7 @@
     :background colors/footer-background
     :font-size "20px"
     :border-radius 0
+    :text-align :center
     }]
 
   [".btn-group-lg>.btn" ".btn-lg" ".btn" {:border-radius 0 }]
@@ -233,6 +233,21 @@
   [:dl.extra-margin
     [:dd {:margin "10px 10px 10px 180px"}]]
 
+  [:body
+    [:div.single-page-wrapper {
+        :margin-top "80px"
+        :margin-bottom "80px"
+        }
+      [:.single-page-body-content {
+        :max-width "380px"
+        :padding "15px 35px 45px"
+        :margin "0 auto"
+        :background-color colors/single-page-body-bg
+        :border "1px solid rgba(0,0,0,0.1);"
+        }
+       ]
+    ]
+  ]
   landing-page/all
   login-page/all
   apiary/all

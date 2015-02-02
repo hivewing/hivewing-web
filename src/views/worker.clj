@@ -29,6 +29,9 @@
       {:href (paths/worker-config-path hu wu)
         :active (= current-page :config)
         :text "Config"}
+      {:href (paths/worker-events-path hu wu)
+        :active (= current-page :events)
+        :text "Events"}
       {:href (paths/worker-data-path hu wu)
         :active (= current-page :data)
         :text "Data"}
@@ -375,3 +378,33 @@
 
       [:script (log-update-script req (:uuid hive) (:uuid worker) (:at (first log-messages)))]
       ]))
+
+(defn events
+  [req hive worker tasks]
+  [:div.container-fluid
+    [:div.row
+      [:h2 "Events"]
+      [:p "Events are worker / task specific payloads delivered to the worker. It is temporal, and does not persist.
+         Useful for direct, real-time control of a worker"]
+    ]
+    [:div.row.margin-bottom-row
+      [:ul.list-item-group
+        [:li.list-group-item.clearfix
+          [:form  {:method "post" :action (paths/worker-events-path (:uuid hive) (:uuid worker))}
+            (helpers/anti-forgery-field)
+            [:div.col-md-2
+               [:select.form-control {:name "event-task" :required :required}
+                  (map #(vector :option {:value %} %) tasks)
+                ]
+            ]
+            [:div.col-md-4
+               [:input.form-control {:type :text :required :required :name "event-name" :pattern "[a-zA-Z_\\-0-9]+" :title "Worker config key.  0-9A-Za-z _ - " :placeholder "New Event Name "}] ]
+            [:div.col-md-4
+               [:input.form-control {:type :text :required :required :name "event-value" :placeholder "New Event Value"}] ]
+            [:div.col-md-2
+               [:input.btn.btn-primary {:type :submit :value "Send Event"}] ]
+          ]
+        ]
+      ]
+    ]
+  ])

@@ -250,4 +250,14 @@
          :margin-bottom 0
         }]
       ])
+
+  [:footer {
+    :padding "50px 0"
+    :color  colors/footer-color
+    :background colors/footer-background
+    :font-size "20px"
+    :border-radius 0
+    :text-align :center
+    }]
+
   ])
