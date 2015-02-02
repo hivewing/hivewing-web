@@ -17,6 +17,7 @@
        ]
        [:div.navbar-right.collapse.navbar-collapse.navbar-main-collapse
          [:ul.nav.navbar-nav
+           [:li [:a {:href (paths/api-docs-path)} " API Docs "]]
            (if logged-in?
             [:li [:a {:href "/"} " Settings"]])
            (if logged-in?

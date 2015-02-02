@@ -126,10 +126,11 @@
                                worker (worker/worker-get worker-uuid)]
         (render (layout/render req
                          (views/manage req hive worker tasks worker-task-tracing)
-                         :style :side-menu
-                         :side-menu (views/side-menu req :manage can-manage?)
-                         :back-link { :href (paths/hive-path hive-uuid)
-                                      :text "Hive"}))))))
+                             :style :default
+                             :sub-menu (views/side-menu req :manage can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker))))))
 
 (defn create-config
   [req & args]
@@ -182,10 +183,11 @@
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
           (render (layout/render req
                          (views/config req hive worker tasks worker-config can-manage? )
-                         :style :side-menu
-                         :side-menu (views/side-menu req :config can-manage?)
-                         :back-link { :href (paths/hive-path hive-uuid)
-                                      :text "Hive"})))))))
+                             :style :default
+                             :sub-menu (views/side-menu req :config can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker)))))))
 (defn show-data-values
   [req & args]
     (with-beekeeper req bk
@@ -198,10 +200,11 @@
             (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
               (render (layout/render req
                              (views/show-data-values req hive worker data-name data-values)
-                             :style :side-menu
-                             :side-menu (views/side-menu req :data can-manage?)
-                             :back-link { :href (paths/hive-path hive-uuid)
-                                          :text "Hive"})))))))
+                             :style :default
+                             :sub-menu (views/side-menu req :data can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker)))))))
 (defn data
   [req & args]
   (with-beekeeper req bk
@@ -213,14 +216,15 @@
         (let [can-manage?  (hive/hive-can-modify? (:uuid bk) hive-uuid)]
         (render (layout/render req
                          (views/data req hive worker data-keys)
-                         :style :side-menu
-                         :side-menu (views/side-menu req :data can-manage?)
-                         :back-link { :href (paths/hive-path hive-uuid)
-                                      :text "Hive"})))))))
+                             :style :default
+                             :sub-menu (views/side-menu req :data can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker)))))))
 (defn logs-delta
   [req & args]
   (with-beekeeper req bk
-    (with-required-parameters req [hive-uuid worker-uuid worker-logs-after]
+    (with-required-parameters req [hive-uuid worker-uuid worker-logs-last-log]
       (with-preconditions req [hive (hive/hive-get hive-uuid)
                                in-hive? (worker/worker-in-hive? worker-uuid hive-uuid)
                                worker (worker/worker-get worker-uuid)
@@ -231,9 +235,9 @@
               current-task (if (= current-task "*ALL*") nil current-task)
               current-task (some #(when (= current-task %) %) tasks)
 
-              start-time-raw (or (:worker-logs-start (:params req)) (str (ctimec/to-long (ctime/now))))
-              start-at     (ctimec/to-sql-time (ctimec/from-long (read-string start-time-raw)))
-              search-args  (vector hive-uuid :start-at start-at :worker-uuid worker-uuid)
+              end-time-raw (or (:worker-logs-end (:params req)) (str (ctimec/to-long (ctime/now))))
+              end-at     (ctimec/to-sql-time (ctimec/from-long (read-string end-time-raw)))
+              search-args  (vector hive-uuid :end-at end-at :worker-uuid worker-uuid)
               all-search-args (if current-task (conj search-args :task current-task) search-args)
               worker-logs   (apply hive-logs/hive-logs-read all-search-args)
               ]
@@ -266,8 +270,9 @@
               ]
 
             (render (layout/render req
-                         (views/logs req hive worker current-task start-at tasks worker-logs)
-                         :style :side-menu
-                         :side-menu (views/side-menu req :logs can-manage?)
-                         :back-link { :href (paths/hive-path hive-uuid)
-                                      :text "Hive"})))))))
+                         (views/logs req hive worker current-task (:worker-logs-start (:params req)) tasks worker-logs)
+                             :style :default
+                             :sub-menu (views/side-menu req :logs can-manage?)
+                             :back-link (back-link req)
+                             :current-name (:name worker)
+                             :body-class :worker)))))))

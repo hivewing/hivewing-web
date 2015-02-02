@@ -2,8 +2,10 @@
   (:require [ring.util.codec :as ring-codec]
             [ring.util.request :as ring-request]
             [lib.paths :as lib]
+            [environ.core :refer [env]]
             ))
 
+(lib/defpath api-docs-path [] (env :hivewing-api-host) "index.html")
 (lib/defpath logout-path [] "logout")
 (lib/defpath login-path [] "login")
 (lib/defpath apiary-path [] "apiary")

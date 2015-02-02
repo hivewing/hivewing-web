@@ -207,6 +207,7 @@
   }]
 
   [:.margin-top-row {:margin-top "20px" }]
+  [:.margin-bottom-row {:margin-bottom "20px" }]
 
   [:.flash  {
       :background colors/flash-bg
@@ -228,6 +229,10 @@
     :width "100%"
     :padding "20px 40px"
                            }]
+
+  [:dl.extra-margin
+    [:dd {:margin "10px 10px 10px 180px"}]]
+
   landing-page/all
   login-page/all
   apiary/all

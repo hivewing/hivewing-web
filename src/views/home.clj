@@ -21,6 +21,7 @@
             "<!-- Hidden li included to remove active class from about link when scrolled up past about section -->"
             [:li.hidden
               [:a {:href "#page_top"}]]
+            [:li [:a {:href (paths/api-docs-path)} " API Docs "]]
             [:li
               [:a.page-scroll {:href "#about"} "About" ]]
             [:li

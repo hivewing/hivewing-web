@@ -55,19 +55,17 @@
 (defn status [req hive worker worker-config tasks system-worker-logs worker-task-tracing]
   [:div.container-fluid
     [:div.row
-     [:h2 "Info"]
-     [:dl.dl-horizontal
-      [:dt "Connected"]
-      [:dd (if (:connected worker) "Connected" "Disconnected")]
-      [:dt "Last Seen"]
-      [:dd (if (:last_seen worker) (:last_seen worker) "Never seen")]
-      [:dt "Hive Image Ref"]
-      [:dd "configured / current"]
-      [:dd [:span (hive-image-ref (get worker-config ".hive-image" ))]
-            [:span "  /  "]
-            [:span (hive-image-ref (get worker-config ".hive-image-current" ))]
+      [:h2 "Info"]
+      [:dl.dl-horizontal
+        [:dt "Connected"]
+        [:dd (if (:connected worker) "Connected" "Disconnected")]
+        [:dt "Last Seen"]
+        [:dd (if (:last_seen worker) (:last_seen worker) "Never seen")]
+        [:dt "Configured Image"]
+        [:dd [:span (hive-image-ref (get worker-config ".hive-image" ))]]
+        [:dt "Current Image"]
+        [:dd [:span (hive-image-ref (get worker-config ".hive-image-current" ))]]
       ]
-     ]
     ]
     [:div.row
       [:h2 "Tasks"]
@@ -76,11 +74,10 @@
           [:li.list-group-item.text-center  [:span "No Active Tasks"]])
 
           (map #(vector :li.list-group-item
-                          [:span.pull-right.badge {
-                            :class (if (get worker-task-tracing (key %))
-                                        "badge-success") }
-                             "Tracing"]
-                          [:strong  (key %)]
+                          [:span.pull-right.label {
+                            :class (if (get worker-task-tracing (key %)) "label-success") }
+                             (if (get worker-task-tracing (key %)) "Tracing")]
+                          [:strong.col-sm-3  (key %)]
                           [:span (val %)])
                tasks)
        ]
@@ -98,62 +95,83 @@
   ])
 
 (defn manage [req hive worker tasks worker-task-tracing]
-  [:div
-    [:h1 "Manage"]
-    [:form.pure-form.pure-form-stacked {:method "post"}
-      (helpers/anti-forgery-field)
-      [:label "Name"]
-      [:input {:type :text :value (:name worker) :pattern "{1,120}" :name :worker-manage-name}]
-      [:input.pure-button.pure-button-primary {:value "Save" :type :submit}]
+  [:div.container-fluid
+    [:div.row
+      [:h2 "Settings"]
+      [:form.col-lg-8 {:method "post"}
+        (helpers/anti-forgery-field)
+        [:div.form-group
+          [:label "Name"]
+          [:input.form-control {:type :text :value (:name worker) :pattern "{1,120}" :name :worker-manage-name}]
+        ]
+        [:div.form-group.spaced
+          [:input.btn.btn-primary {:value "Save" :type :submit}]
+        ]
+      ]
     ]
-
-    [:h2 "Worker Events"]
-    [:div.pure-g.pure-u-1-1
+    [:div.row
+      [:h2 "Worker Events"]
+    ]
+    [:div.row
       [:form {:method "post"}
         (helpers/anti-forgery-field)
-        [:div
-          [:p [:b "Reboot the worker" ]]
-          [:p "This will cause all the tasks on the worker to restart. Configuration is persisted"]
-          [:input.pure-button.pure-u-1-4 {:type :submit :name :worker-event-reboot :value "Reboot Worker"}]
-        ]
-        [:div
-          [:p [:b "Reset the worker" ]]
-          [:p "This will cause the worker to delete all configuration, stop all tasks, and bootstrap itself again"]
-          [:input.pure-button.pure-u-1-4 {:type :submit :name :worker-event-reset :value "Reset Worker"}]
+        [:dl.dl-horizontal.extra-margin
+          [:dt "Reboot worker" ]
+          [:dd [:span "This will cause all the tasks on the worker to restart. Configuration is persisted"]]
+          [:dd [:input.btn.btn-sm.btn-primary {:type :submit :name :worker-event-reboot :value "Reboot Worker"}]]
+
+          [:dt "Reset worker"]
+          [:dd [:span "This will cause the worker to delete all configuration, stop all tasks, and bootstrap itself again"]]
+          [:dd [:input.btn.btn-sm.btn-primary  {:type :submit :name :worker-event-reset :value "Reset Worker"}]]
         ]
       ]
     ]
 
-    [:h2 "Task Logging"]
-    [:table.pure-table.pure-table-striped.pure-table-horizontal
-      [:thead
-        [:tr
-          [:th "Task"]
-          [:th "Tracing"]
-         ]
-      ]
-      (if (empty? tasks)
-        [:tr [:td.center {:colspan 3} "None"]]
-        (map #(vector :tr [:td (key %)]
-                          [:td [:form {:method "post"}
+    [:div.row
+      [:h2 "Task Logging"]
+      [:ul.list-item-group
+        (if (empty? tasks)
+          [:li.list-group-item.text-center  "No tasks"])
+
+        (map #(vector :li.list-group-item.clearfix
+                        [:form.pull-right {:method "post"}
                                 (helpers/anti-forgery-field)
                                 [:input {:type :hidden :name :worker-task :value (key %)}]
-                                [:input.pure-button {:class (if (get worker-task-tracing (key %)) "pure-button-active" "") :type :submit :name :worker-task-tracing :value "On"}]
-                                [:input.pure-button {:class (if (get worker-task-tracing (key %)) "" "pure-button-active") :type :submit :name :worker-task-tracing :value "Off"}]]]) tasks))
+
+                                (if (get worker-task-tracing (key %))
+                                  [:div.btn-group
+                                    [:input.btn {:class "btn-primary" :type :submit :disabled true :value "On"}]
+                                    [:input.btn {:class "btn-default" :type :submit :name :worker-task-tracing :value "Off"}]]
+                                  [:div.btn-group
+                                    [:input.btn {:class "btn-default" :type :submit :name :worker-task-tracing :value "On"}]
+                                    [:input.btn {:class "btn-primary" :type :submit :disabled true :value "Off"}]]
+                                  )]
+
+                      (key %))
+                       tasks)
       ]
-    [:hr]
-    [:h3 "Delete Worker"]
-    [:p "Deleting the worker will remove it from the hive and clear the data from the device.  The device will need to be re-initialized and connected back to hive-wing"]
-    [:form.pure-form {:method "post" :action (paths/worker-delete-path (:uuid hive) (:uuid worker))}
-      (helpers/anti-forgery-field)
-      [:input.pure-u-1-2 {:type :text :required :required :pattern "[pP][lL][eE][aA][sS][eE][ ]+[dD][eE][lL][eE][tT][eE]"
+    ]
+    [:div.row
+      [:h2 "Delete Worker"]
+      [:p "Deleting the worker will remove it from the hive and clear the data from the device.  The device will need to be re-initialized and connected back to hive-wing"]
+    ]
+    [:div.row
+      [:form  {:method "post" :action (paths/worker-delete-path (:uuid hive) (:uuid worker))}
+        (helpers/anti-forgery-field)
+        [:div.form-group
+          [:div.input-group
+            [:input.form-control {:type :text :required :required :pattern "[pP][lL][eE][aA][sS][eE][ ]+[dD][eE][lL][eE][tT][eE]"
                :placeholder "To confirm type \"Please Delete\""
                :name :worker-delete-confirmation
                :title "To confirm type \"Please Delete\""}]
-      [:input.pure-button.button-error.pure-u-1-4 {:type :submit :value "Delete Worker"}]
-     ]
-
-    ])
+            [:span.input-group-btn
+              [:input.btn.btn-danger {:type :submit :value "Delete Worker"}]
+            ]
+          ]
+        ]
+      ]
+    ]
+  ])
 
 (defn split-config-name
   "Splits a config key into the task and config name."
@@ -168,80 +186,88 @@
   [[k v] hive worker can-manage?]
 
   (let [[task name] (split-config-name k)]
-    (vector :tr
-           [:td task]
-           [:td name]
-           [:td
-              [:form.unpadded
-                {:method "post" :action (paths/worker-config-update-path (:uuid hive) (:uuid worker))}
+    (vector :li.list-group-item.clearfix
+            [:div.col-md-2 [:input.form-control {:value task :readonly true}]]
+            [:div.col-md-4 [:input.form-control {:value name :readonly true}]]
+            [:form {:method "post" :action (paths/worker-config-update-path (:uuid hive) (:uuid worker))}
+              [:div.col-md-4
                 (helpers/anti-forgery-field)
                 [:input {:type :hidden :name :worker-config-key :value k}]
-                [:input.pure-u-1-1 {:type :text :name :worker-config-value :value v}]
-                [:input.pure-button.pure-u-1-1 {:type :submit :value "Update" :style "display: none"}]
-                ]
+                [:input.form-control {:type :text :name :worker-config-value :value v}]
+              ]
+              [:div.col-md-1
+                [:input.btn.btn-primary {:type :submit :value "Update"}]
+              ]
             ]
-           [:td
-            (if can-manage?
-              (vector :form.unpadded
-                      {:method "post" :action (paths/worker-config-delete-path (:uuid hive) (:uuid worker))}
-                      (helpers/anti-forgery-field)
-                      [:input {:type :hidden :name :worker-config-key :value k}]
-                      [:input.pure-button.pure-u-1-1 {:type :submit :value "Delete"}])
-              "&nbsp;")])))
+            [:div.col-md-1
+              (if can-manage?
+                (vector :form
+                        {:method "post" :action (paths/worker-config-delete-path (:uuid hive) (:uuid worker))}
+                        (helpers/anti-forgery-field)
+                        [:input {:type :hidden :name :worker-config-key :value k}]
+                        [:input.btn.btn-danger {:type :submit :onclick (str "confirm(\"Are you sure you want to delete " k "?\")") :value "Delete"}])
+                "&nbsp;")
+            ])))
 
-(defn config [req hive worker tasks worker-config can-manage?]
-  [:div
-    [:h1 "Config"]
-    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-      [:thead
-        [:tr
-          [:th "Task"]
-          [:th "Name"]
-          [:th "Value"]
-          [:th "&nbsp;"]
-         ]
-      ]
-      [:tbody
-        (if can-manage?
-          [:tr
-            [:form.unpadded {:method "post" :action (paths/worker-config-path (:uuid hive) (:uuid worker))}
+(defn config
+  [req hive worker tasks worker-config can-manage?]
+  [:div.container-fluid
+    [:div.row
+      [:h2 "Config"]
+      [:p "Configuration is worker-specific and persists across any reboot / restart
+          software update"]
+    ]
+    [:div.row.margin-bottom-row
+      (if can-manage?
+        [:ul.list-item-group
+          [:li.list-group-item.clearfix
+            [:form  {:method "post" :action (paths/worker-config-path (:uuid hive) (:uuid worker))}
               (helpers/anti-forgery-field)
-              [:td
-                 [:select {:name "worker-config-task" :required :required}
+              [:div.col-md-2
+                 [:select.form-control {:name "worker-config-task" :required :required}
                     (map #(vector :option {:value %} %) tasks)
                   ]
               ]
-              [:td
-                 [:input.pure-u-1-1 {:type :text :required :required :name "worker-config-key" :pattern "[a-zA-Z_\\-0-9]+" :title "Worker config key.  0-9A-Za-z _ - " :placeholder "New Worker Config"}] ]
-              [:td
-                 [:input.pure-u-1-1 {:type :text :required :required :name "worker-config-value" :placeholder "New Worker Value"}] ]
-              [:td
-                 [:input.pure-button.pure-button-primary.pure-u-1-1 {:type :submit :value "Create"}] ]
-             ]
-           ])
-        [:tr [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] ]
+              [:div.col-md-4
+                 [:input.form-control {:type :text :required :required :name "worker-config-key" :pattern "[a-zA-Z_\\-0-9]+" :title "Worker config key.  0-9A-Za-z _ - " :placeholder "New Worker Config"}] ]
+              [:div.col-md-4
+                 [:input.form-control {:type :text :required :required :name "worker-config-value" :placeholder "New Worker Value"}] ]
+              [:div.col-md-2
+                 [:input.btn.btn-primary {:type :submit :value "Create"}] ]
+            ]
+          ]
+        ]
+      )
+    ]
+    [:div.row
+      [:ul.list-item-group
         (map #(render-config-row % hive worker can-manage?) (sort-by first (map identity worker-config)))
+
+        (if (empty? worker-config)
+          [:li.list-group-item.text-center "No configuration set"])
+      ]
+
+      [:tbody
+        [:tr [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] [:td "&nbsp;"] ]
       ]
     ]
   ])
 
 (defn render-data-value-row
   [req hive worker data-name value]
-    [:tr
-      [:td (:at value)]
-      [:td (:data value)]])
+    [:li.list-group-item.clearfix
+      [:span.col-md-3 (:at value)]
+      [:span.col-md-8 [:strong (:data value)]]])
 
 (defn show-data-values
   [req hive worker data-name data-values]
-    [:div
-     [:h1 (str data-name " Data")]
-     [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-        [:thead
-          [:tr
-            [:th "At"]
-            [:th "Value"]
-            ]]
-        [:tbody
+    [:div.container-fluid
+      [:div.row
+        [:h2 (str data-name " Data")]
+        [:p "A listing of the most recent data values received from this worker"]
+      ]
+      [:div.row
+        [:ul.list-item-group
           (map #(render-data-value-row req hive worker data-name % )  (sort-by first (map identity data-values)))
         ]
       ]
@@ -251,38 +277,38 @@
 
 (defn render-data-row
   [req hive worker data-name]
-    [:tr
-      [:td
-         [:a {:href (paths/worker-data-value-path (:uuid hive) (:uuid worker) data-name)}
-          data-name]]])
+    [:li.list-group-item.clearfix [:a {:href (paths/worker-data-value-path (:uuid hive) (:uuid worker) data-name)} data-name]])
 
 (defn data [req hive worker data-keys]
-  [:div
-    [:h1 "Worker Data"]
-    [:table.pure-table.pure-table-striped-horizontal.pure-table-striped
-      [:tbody
-       (if (empty? data-keys)
-         [:tr.center [:h3 "No Data"]])
-        (map #(render-data-row req hive worker % )  (sort-by first (map identity data-keys)))
-      ]
+  [:div.container-fluid
+    [:div.row
+      [:h2 "Worker Data"]
+      [:p "Worker data is data that is received from the worker.  The most recent records are stored and accessible
+          via the API.  Older data is either purged or using a processing stage can be stored in longer-term storage."]
+    ]
+    [:ul.list-item-group
+      (if (empty? data-keys)
+        [:li.list-group-item.text-center "No Data"])
+
+      (map #(render-data-row req hive worker % )  (sort-by first (map identity data-keys)))
     ]
   ])
 
 (defn render-worker-log
   [log]
-    (vector :tr
-            [:td (str (:at log))]
-            [:td (or (:task log) "--system--")]
-            [:td  (str (:message log))]))
+    (vector :li.list-group-item.clearfix
+            [:span.col-md-2 (str (:at log))]
+            [:span.col-md-2 (or (:task log) "--system--")]
+            [:span.col-md-8  (str (:message log))]))
 
 
 (defn log-update-script
-  [req hive-uuid worker-uuid recent-time]
+  [req hive-uuid worker-uuid last-log]
 
   (let [req-params (:params req)
-        recent-time (or recent-time (java.util.Date.))
-        worker-logs-after (.getTime recent-time)
-        all-params (assoc req-params :worker-logs-after worker-logs-after)
+        last-log (or last-log (java.util.Date.))
+        worker-logs-after (.getTime last-log)
+        all-params (assoc req-params :worker-logs-last-log worker-logs-after)
         stringd    (clojure.walk/stringify-keys all-params)
         ]
 
@@ -311,31 +337,41 @@
         next-start-at (ctimec/to-long (:at (last log-messages)))
         next-link (lib-paths/add-params-to-url current-url {:worker-logs-start next-start-at})
         ]
-    [:div.worker-logs
-      [:h1 "Logs"]
-
-      [:form.pure-form.unpadded.right
-        (helpers/anti-forgery-field)
-        [:select {:name "worker-logs-task"}
-          [:option {:selected (nil? current-task) :value "*ALL*"} "All Tasks"]
-          (map #(vector :option {:selected (= current-task %1) :value %1} %1) tasks)
-         ]
-        [:input.pure-button {:type :submit :value "Filter"}]
+    [:div.container-fluid
+      [:div.row
+        [:h2 "Worker Logs"]
+        [:p "These are the log messages from all of the worker tasks.  If Tracing is enabled, you will get all the
+            output from a worker task.  Otherwise only specifically \"logged\" output is recorded.
+            Only the most recent logs are stored, once they expire, they are discarded"]
       ]
-      [:div.left
-        [:div.navigation
-          (if rewind-link
-            [:a.pure-button {:href rewind-link} "Reset"])
-          [:a.pure-button {:href next-link} "Next"]
-        ]
-        [:h3 (str "Logs from: " start-at)]]
 
-      (if (empty? log-messages)
-         [:h3 "No Log Messages"])
-      [:table.pure-table.logs.pure-table-striped-horizontal.pure-table-striped
-        [:tbody.logs-insertion-point
-          (map render-worker-log log-messages)
-        ]]
+      [:div.row
+        [:form.pull-right.col-md-2
+          (helpers/anti-forgery-field)
+          [:div.form-group
+            [:div.input-group
+              [:select.form-control {:name "worker-logs-task"}
+                [:option {:selected (nil? current-task) :value "*ALL*"} "All Tasks"]
+                (map #(vector :option {:selected (= current-task %1) :value %1} %1) tasks)
+              ]
+              [:span.input-group-btn
+               [:input.btn.btn-primary {:type :submit :value "Filter"}]
+              ]
+            ]
+          ]
+        ]
+        [:div.navigation.btn-group
+          (if rewind-link
+            [:a.btn.btn-primary {:href rewind-link} [:i.fa.fa-fast-backward] "&nbsp; Rewind"])
+          [:a.btn.btn-primary {:href next-link} [:i.fa.fa-step-forward]   "&nbsp; More"]
+        ]
+      ]
+
+      [:ul.list-item-group.logs-insertion-point
+        (if (empty? log-messages)
+           [:li.list-group-item.text-center "No Log Messages"])
+        (map render-worker-log log-messages)
+      ]
 
       [:script (log-update-script req (:uuid hive) (:uuid worker) (:at (first log-messages)))]
       ]))
