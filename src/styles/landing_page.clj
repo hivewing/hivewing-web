@@ -172,7 +172,7 @@
            ["&:hover" {
                      :background "#fff"
                       }]
-           [:h4 {
+           [:h3 {
                  :padding-bottom :10px
                  :border-bottom (str "3px solid " colors/landing-section-feature-block)
                  :margin-bottom :10px
@@ -202,6 +202,19 @@
       :border-bottom (str "1px solid " colors/landing-section-border)
       }
     ]
+    [".content-section.even" {
+      :padding-top "100px"
+      :padding-bottom "100px"
+      :margin-top "50px"
+      :margin-bottom "20px"
+      :color colors/landing-section-even-color
+      :background colors/landing-section-even-background
+      :border-top (str "1px solid " colors/landing-section-border)
+      :border-bottom (str "1px solid " colors/landing-section-border)
+
+                              }]
+    [:hr.even {:border-color colors/landing-section-even-background
+               :border-width "50px"}]
 
     (at-media {:min-width "767px"}
       [:.content-section { :padding-top "125px"

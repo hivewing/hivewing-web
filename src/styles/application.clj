@@ -37,7 +37,8 @@
                             :font-family "Dosis,Helvetica,Arial,sans-serif"
                             :font-weight 700
                             :letter-spacing "1px"
-                            }]
+                            }
+  ]
 
   [:p {
        :margin "0 0 25px"

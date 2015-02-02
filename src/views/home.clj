@@ -21,9 +21,10 @@
             "<!-- Hidden li included to remove active class from about link when scrolled up past about section -->"
             [:li.hidden
               [:a {:href "#page_top"}]]
-            [:li [:a {:href (paths/api-docs-path)} " API Docs "]]
             [:li
               [:a.page-scroll {:href "#about"} "About" ]]
+            [:li
+              [:a.page-scroll {:href "#features"} "Features" ]]
             [:li
               [:a.page-scroll {:href "#get_started"} "Get Started"]]
             [:li
@@ -53,53 +54,54 @@
       [:div.row
         [:div.col-lg-10.col-lg-offset-1
           [:h1 "Hivewing.io is the platform"]
-          [:p "Hivewing.io is the platform that you should build your IoT devices upon.
-              When you have built a killer application and are ready to share it with the world, don't waste your time
-              building all the plumbing to make it production ready.  There is a lot of code that needs to be written to update
-              binaries, debug remotely, provide an API, and manage each device."
-              [:br]
-              "Keep it simple and let Hivewing.io enable you to care and feed your devices."
-          ]
-
-          [:div.row.feature-point-row
-            [:div.col-sm-4.feature-point
-              [:div.wrapper
-                [:h4 "Remote Management? " [:br] "Done."]
-                [:p "Hivewing.io updates your devices' software remotely and securely. It lets you debug remotely and drill down to figure out what is going on."]
-                 [:br]
-                 [:ul.text-left
-                   [:li "Push with git"]
-                   [:li "Watch the magic"]
-                   [:li "Device logs centrally stored"]
+          [:p "Hivewing.io is the platform that you will build your IoT devices upon.
+              When you have built the killer application and are ready to share it with the world, don't waste your time
+              building and maintaining all the plumbing to make it production ready.  Leverage Hivewing.io to get your product in your user's hands quickly and securely.  "]
+          [:h3 "Keep focused on your product and the things that make it awesome."]
+        ]
+      ]
+    ]
+    [:hr.even ]
+    [:section#features.content-section.text-center
+      [:div.row
+        [:div.row.feature-point-row
+          [:div.col-sm-4.feature-point
+            [:div.wrapper
+              [:h3 "Remote Management? " [:br] "Done."]
+              [:p "Hivewing.io updates your devices' software remotely and securely. It lets you debug remotely and drill down to figure out what is going on."]
+               [:br]
+               [:ul.text-left
+                 [:li "Push updates with git"]
+                 [:li "Device logs centrally stored"]
+                 [:li "Remote SSH access"]
+               ]]]
+          [:div.col-sm-4.feature-point
+            [:div.wrapper
+              [:h3 "Want to have an API?" [:br] " Got it."]
+              [:p "We wrap your workers and expose them through our API giving you a quick and simple way to get the plumbing right. You may not even need a server - and just control devices through your client applications."
+               [:br]
+               [:ul.text-left
+                 [:li "Persistent configuration"]
+                 [:li "Transient events"]
+                 [:li "Data collection"]
+                 [:li "Logs"]
+                 [:li [:a {:href (paths/api-docs-path)} " API Docs "]]
+                 ]]]]
+          [:div.col-sm-4.feature-point
+            [:div.wrapper
+              [:h3 "Decisions with data?" [:br] " We do that."]
+              [:p "We store all the data and state from your devices.
+                  We can process all the incoming data and help you make fast decisions.
+                  Let us drink from the firehose and give you only what you care about."]
+               [:ul.text-left
+                 [:li "Notify on data changes"]
+                 [:li "Aggregate data points"]
+                 [:li "Dump data to S3"]
                  ]]]
-            [:div.col-sm-4.feature-point
-              [:div.wrapper
-                [:h4 "Need to have an API?" [:br] " Got it."]
-                [:p "We wrap your workers with our code and expose them through our API giving you a quick and simple way to get the plumbing right. You may not even need a server - and just control devices through your client applications."
-                 [:br]
-                 [:ul.text-left
-                   [:li "Persistent configuration"]
-                   [:li "Transient events"]
-                   [:li "Data collection"]
-                   [:li "Logs"]
-                   ]]]]
-            [:div.col-sm-4.feature-point
-              [:div.wrapper
-                [:h4 "Decisions on data?" [:br] " Decided."]
-                [:p "We store all the data and state from your devices.
-                    We can process all the incoming data and help you make fast decisions.
-                    Let us drink from the firehose and give you only what you want."]
-                 [:ul.text-left
-                   [:li "Temp too high? Send a POST-hook"]
-                   [:li "Calculate averages"]
-                   [:li "Aggregate data points"]
-                   [:li "Dump data to S3"]
-                   ]]]
-          ]
-          [:div.row
-            [:h4 "Let us handle the details, so you can..."]
-            [:h2 "Mind Your Bees"]
-          ]
+        ]
+        [:div.row
+          [:h4 "Let us handle the details, so you can..."]
+          [:h2 "Mind Your Bees"]
         ]
       ]
     ]
