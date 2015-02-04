@@ -6,6 +6,7 @@
               [hivewing-web.system-controller :as system]
               [hivewing-web.hive-controller :as hive]
               [hivewing-web.worker-controller :as worker]
+              [hivewing-web.beekeeper-controller :as beekeeper]
               [hivewing-web.login-controller :as login]
               [lib.routes :as lib]))
 
@@ -48,6 +49,13 @@
   (lib/hw-route GET (paths/worker-logs-path ":hive-uuid" ":worker-uuid") worker/logs)
   (lib/hw-route GET (paths/worker-events-path ":hive-uuid" ":worker-uuid") worker/events)
   (lib/hw-route POST (paths/worker-events-path ":hive-uuid" ":worker-uuid") worker/send-event)
+
+  (lib/hw-route GET (paths/beekeeper-profile-path) beekeeper/profile)
+  (lib/hw-route POST (paths/beekeeper-profile-path) beekeeper/profile-update)
+  (lib/hw-route POST (paths/beekeeper-profile-change-password-path) beekeeper/change-password)
+  (lib/hw-route GET (paths/beekeeper-public-keys-path) beekeeper/public-keys)
+  (lib/hw-route POST (paths/beekeeper-public-keys-path) beekeeper/public-key-create)
+  (lib/hw-route POST (paths/beekeeper-public-key-delete-path) beekeeper/public-key-delete)
 
   (ANY "*" {:as req} (lib/log-response (system/not-found (lib/log-request req))))
   )

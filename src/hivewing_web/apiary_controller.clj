@@ -16,6 +16,10 @@
             [clojure.pprint :as pprint]
      ))
 
+(defn back-link [req]
+  {:href (paths/apiary-path)
+   :text "Apiary"})
+
 (defn sub-menu [req current]
   "Determine the submenu listing for the apiary-controller!"
   [{:href (paths/apiary-path)
@@ -35,7 +39,7 @@
                                   :style :default
                                   :sub-menu (sub-menu req :status)
                                   :current-name "Apiary"
-                                  :back-link nil
+                                  :back-link (back-link req)
                                   :body-class :apiary
                                   )))))
 (defn manage

@@ -36,3 +36,8 @@
 (lib/defpath hive-processing-new-stage-path [hu stgnm] (hive-path hu) "processing" "stage" stgnm "new")
 (lib/defpath hive-processing-create-stage-path [hu stgnm] (hive-path hu) "processing" "stage" stgnm "create")
 (lib/defpath hive-processing-delete-stage-path [hu stgnm] (hive-path hu) "processing" "stage" stgnm "delete")
+
+(lib/defpath beekeeper-profile-path [] "beekeeper" "profile")
+(lib/defpath beekeeper-profile-change-password-path [] "beekeeper" "profile" "change-password")
+(lib/defpath beekeeper-public-keys-path [] "beekeeper" "public-keys")
+(lib/defpath beekeeper-public-key-delete-path [] "beekeeper" "public-keys" "delete")

@@ -19,7 +19,7 @@
          [:ul.nav.navbar-nav
            [:li [:a {:href (paths/api-docs-path)} " API Docs "]]
            (if logged-in?
-            [:li [:a {:href "/"} " Settings"]])
+            [:li [:a {:href (paths/beekeeper-profile-path)} " Profile"]])
            (if logged-in?
             [:li [:a {:href (paths/logout-path)} " Sign Out"]]
             [:li [:a {:href (paths/login-path :return-to (ring-request/request-url req))} "Sign In"]])
