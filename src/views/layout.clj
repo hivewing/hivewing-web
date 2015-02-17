@@ -18,6 +18,7 @@
         style  (or (:style params) :default)]
     (html5 {:lang "en-US"}
       [:head
+        [:link {:rel "shortcut icon" :type "image/png" :href "/favicon.png?v=4"}]
         [:meta {:http-equiv "Content-type"
                 :content "text/html; charset=utf-8"}]
         [:meta {:name "viewport" :content "width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maxiumum-scale=1.0"}]

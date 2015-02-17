@@ -45,10 +45,7 @@
                                 :pretty-print? true}}]}
   ;; We tell Ring what our handler function is and
   ;; what port to start on.
-  :ring {:handler hivewing-web.server/app
-         ;:port 8200
-         :port 8000
-         }
+  :ring {:handler hivewing-web.server/app }
   :uberjar-name "hivewing-web-%s.uber.jar"
   :profiles {:uberjar {:aot :all}}
 
