@@ -33,7 +33,10 @@
   [req]
   [:footer.navbar.navbar-fixe-bottom.navbar-collapse
     [:div.footer-copyright
-     [:div.container "© 2015 Copyright Hivewing.io"]]]
+     [:div.container "© 2015 Copyright Hivewing.io"]
+     ]
+     [:a {:href "http://blog.hivewing.io"} "Blog"]
+  ]
   )
 
 (defn flash
