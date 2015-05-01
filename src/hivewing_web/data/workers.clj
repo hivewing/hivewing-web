@@ -1,11 +1,16 @@
-(ns hivewing-web.data.worker
+(ns hivewing-web.data.workers
   (:require
     [hivewing-web.config :as config]
     [hivewing-web.data.core :refer :all]
     [hivewing-web.data.namer :refer :all]
     [clojure.java.jdbc :as jdbc]
             ))
-
+(comment
+  ; f13bc460-f022-11e4-9de5-127ff21068a7
+  (def worker1 (create "worker1"))
+  (def worker2 (create "worker2"))
+  (lookup "f13bc460-f022-11e4-9de5-127ff21068a7")
+  )
 (defn lookup
   "Finds the public keys of a given beekeeper"
   [worker-uuid]

@@ -1,6 +1,6 @@
-(ns hivewing-web.worker-test
+(ns hivewing-web.workers-test
   (:require [expectations :as e]
-            [hivewing-web.data.worker :refer :all]))
+            [hivewing-web.data.workers :refer :all]))
 
 
 ;; It is created w/ a name

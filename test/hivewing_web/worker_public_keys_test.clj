@@ -1,9 +1,9 @@
 (ns hivewing-web.worker-public-keys-test
   (:require [expectations :as e]
-            [hivewing-web.data.worker :as worker]
+            [hivewing-web.data.workers :as workers]
             [hivewing-web.data.worker-public-keys :refer :all]))
 (defn get-worker [ & args ]
-  (apply worker/create args))
+  (apply workers/create args))
 
 ;; It is created
 (e/expect-let [pk "Public _key"

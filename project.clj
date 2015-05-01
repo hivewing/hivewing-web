@@ -18,8 +18,6 @@
             [s3-wagon-private "1.1.2"]
             [lein-ring "0.9.3"]
             [lein-beanstalk "0.2.7"]
-            [lein-expectations "0.0.7"]
-            [lein-autoexpect "1.4.0"]
             ]
 
   :ring {:handler hivewing-web.handler/application }
