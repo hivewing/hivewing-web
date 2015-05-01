@@ -8,13 +8,14 @@
   {:expectations-options :before-run}
   []
   (println "Cleaning Up Database!")
-  ;(jdbc/execute! (sql-db) ["TRUNCATE TABLE users "])
+  (jdbc/execute! (config/sql-db) ["TRUNCATE TABLE workers,worker_public_keys "])
   )
 
 (defn in-context
   "rebind a var, expecations are run in the defined context"
   {:expectations-options :in-context}
   [work]
+
   (jdbc/with-db-transaction [trans-conn (config/sql-db)]
     (with-redefs [hivewing-web.config/sql-db (fn [] trans-conn)]
       (work))

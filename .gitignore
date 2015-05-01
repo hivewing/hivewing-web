@@ -12,3 +12,4 @@ pom.xml.asc
 /profiles.clj
 *.swo
 resources/public/css/application.css
+.aws-docker-containers*
