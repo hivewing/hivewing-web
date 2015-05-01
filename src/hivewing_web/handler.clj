@@ -26,4 +26,4 @@
 (defroutes application
   (GET "/" [] "Hello World. Hivewing Web. Default Compojure Route")
   api
-)
+  (ANY "*" [] {:status 404 :body "Not Found"}))
