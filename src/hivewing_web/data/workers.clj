@@ -10,7 +10,13 @@
   (def worker1 (create "worker1"))
   (def worker2 (create "worker2"))
   (lookup "f13bc460-f022-11e4-9de5-127ff21068a7")
+  (list-workers)
+  (def worker-tim "f13bc460-f022-11e4-9de5-127ff21068a7")
   )
+
+(defn list-workers []
+  (jdbc/query (config/sql-db) ["SELECT * FROM workers LIMIT 100"]))
+
 (defn lookup
   "Finds the public keys of a given beekeeper"
   [worker-uuid]

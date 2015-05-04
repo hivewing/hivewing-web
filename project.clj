@@ -9,15 +9,16 @@
                  [ragtime "0.3.8"]
                  [clj-time "0.9.0"]
                  [com.taoensso/timbre "3.3.1"]
-                 [metosin/compojure-api "0.20.0" :exclusions [clj-time]]
+                 [metosin/compojure-api "0.20.0" :exclusions [clj-time  org.clojure/tools.reader org.clojure/java.classpath commons-codec]]
                  [metosin/ring-swagger-ui "2.1.1-M2"]
+                 [clj-crypto "1.0.2"]
                 ]
 
   :plugins [[lein-environ "1.0.0"]
-            [ragtime/ragtime.lein "0.3.8"]
-            [s3-wagon-private "1.1.2"]
-            [lein-ring "0.9.3"]
-            [lein-beanstalk "0.2.7"]
+            [ragtime/ragtime.lein "0.3.8"  :exclusions [org.clojure/clojure]]
+            [s3-wagon-private "1.1.2" :exclusions [commons-codec]]
+            [lein-ring "0.9.3" :exclusions [leinjacker org.clojure/clojure]]
+            [lein-beanstalk "0.2.7" :exclusions [org.clojure/clojure commons-codec]]
             ]
 
   :ring {:handler hivewing-web.handler/application }
