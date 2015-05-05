@@ -29,7 +29,9 @@
   "Create a hive"
   ([] (create (gen-name)))
   ([name]
-    (let [res (first (jdbc/insert! (config/sql-db)
+
+    (let [safe-name (if (clojure.string/blank? name) (gen-name) name)
+          res (first (jdbc/insert! (config/sql-db)
                          :hives
-                         {:name name}))]
+                         {:name safe-name}))]
       res)))

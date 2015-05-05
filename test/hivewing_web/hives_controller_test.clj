@@ -35,14 +35,14 @@
                approval (hwas/create hive "worker-id" true)
                ]
     #"ssh-rsa"
-    (:public_key (join h-uuid "worker-id")))
+    (:public_key (:body (join h-uuid "worker-id"))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
                approval (hwas/create hive "worker-id" true)
                ]
     #"RSA PRIVATE KEY"
-    (:private_key (join h-uuid "worker-id")))
+    (:private_key (:body (join h-uuid "worker-id"))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
@@ -50,27 +50,27 @@
 
                ]
     (:worker_uuid (join h-uuid "worker-id"))
-    (:uuid (first (ws/list-workers))))
+    (:uuid (:body (first (ws/list-workers)))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
                ]
     []
-    (pending-approvals h-uuid))
+    (:body (pending-approvals h-uuid)))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
                approval (hwas/create hive "worker-id" true)
                ]
    []
-   (pending-approvals h-uuid))
+   (:body (pending-approvals h-uuid)))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
                approval (hwas/create hive "worker-id")
                ]
    "worker-id"
-   (:worker_id_string (first (pending-approvals h-uuid))))
+   (:worker_id_string (first (:body (pending-approvals h-uuid)))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
@@ -79,7 +79,7 @@
                approval (hwas/create hive "worker-id")
                ]
    "worker-id"
-   (:worker_id_string (first (pending-approvals h-uuid))))
+   (:worker_id_string (first (:body (pending-approvals h-uuid)))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)
@@ -87,9 +87,9 @@
 
                ]
    false
-   (:approval (reject h-uuid "worker-id")))
+   (:approval (:body (reject h-uuid "worker-id"))))
 
 (e/expect-let [hive (hives/create)
                h-uuid (:uuid hive)]
    true
-   (:approval (approve h-uuid "worker-id")))
+   (:approval (:body (approve h-uuid "worker-id"))))

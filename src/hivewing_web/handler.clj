@@ -20,6 +20,7 @@
                    :name String})
 
 (s/defschema HiveWorkerApproval {:hive_uuid java.util.UUID
+                                 :approval Boolean
                                  :worker_id_string String
                                  :updated_at (s/maybe java.sql.Timestamp)
                                  :created_at java.sql.Timestamp})
@@ -39,6 +40,19 @@
            ])
 
   (api/context* "/api/hives" []
+    (api/GET* "/" []
+          :tags ["hives"]
+          :summary "List hive uuids"
+          :return [java.util.UUID]
+          (hives/index)
+    )
+    (api/POST* "/" []
+          :tags ["hives"]
+          :body-params [hive-name :- (ring.swagger.schema/describe #"[a-zA-Z\-0-9]{0,64}" "Hive name (must be globally unique)")]
+          :summary "Create a named hive"
+          :return Hive
+          (hives/create hive-name) )
+
     (api/GET* "/:hive-uuid/join" []
           :tags ["hives" "worker-communication"]
           :path-params [hive-uuid        :- (ring.swagger.schema/describe java.util.UUID "Hive uuid identifying the hive you are trying to join")]

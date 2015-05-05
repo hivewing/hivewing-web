@@ -26,20 +26,25 @@
     (hwas/delete! hive-uuid worker-id-string)
 
     (logger/info "Creating bootstrap package...")
-    {:worker_uuid  (:uuid worker)
-     :public_key (wkps/kp->public-key-file worker-key-pair)
-     :private_key (wkps/kp->private-key-file worker-key-pair)
-    }))
+    {:status 200
+     :body { :worker_uuid  (:uuid worker)
+             :public_key (wkps/kp->public-key-file worker-key-pair)
+             :private_key (wkps/kp->private-key-file worker-key-pair)}
+     }))
 
 (defn rejected-join [hive-uuid worker-id-string]
   (hwas/touch hive-uuid worker-id-string)
-  {:status 403 :body "Your application for membership has been DENIED. Don't ask again"}
+  {:status 403
+   :headers {"Content-Type" "text/plain"}
+   :body "Your application for membership has been DENIED. Don't ask again"}
 )
 
 (defn pending-join
   [hive-uuid worker-id-string]
   (hwas/touch hive-uuid worker-id-string)
-  {:status 409 :body "Your application is pending. Please check back later"})
+  {:status 409
+   :headers {"Content-Type" "text/plain"}
+   :body "Your application is pending. Please check back later"})
 
 (defn create-pending-join
   [hive-uuid worker-id-string]
@@ -52,29 +57,55 @@
   A 403 if you got a NYET
   A 200 + auth package if you are allowed in"
   [hive-uuid worker-id-string]
-  (let [approval (hwas/lookup hive-uuid worker-id-string)]
-    (if (hwas/is-approved? approval)
-      (create-and-return-auth-package hive-uuid worker-id-string)
-      (if (hwas/is-rejected? approval)
-        (rejected-join hive-uuid worker-id-string)
-        (if approval
-          (pending-join hive-uuid worker-id-string)
-          (create-pending-join hive-uuid worker-id-string))))))
+  (let [hive (hs/lookup hive-uuid)
+        approval (hwas/lookup hive-uuid worker-id-string)]
+    (if hive
+      (if (hwas/is-approved? approval)
+        (create-and-return-auth-package hive-uuid worker-id-string)
+        (if (hwas/is-rejected? approval)
+          (rejected-join hive-uuid worker-id-string)
+          (if approval
+            (pending-join hive-uuid worker-id-string)
+            (create-pending-join hive-uuid worker-id-string))))
+      {:status 404
+       :body "Hive not found"
+       :headers {"Content-Type" "text/plain"}
+       })))
+
+(defn index
+  "Show all the hive uuids"
+  []
+  {:status 200
+   :body (map :uuid (hs/list-hives))
+   })
+
+(defn create
+  [hive-name]
+   (if-let [hive (hs/create hive-name)]
+    {:status 200
+      :body hive}
+    {:status 404
+      :body "No hive found"}))
+
 (defn reject
   [hive-uuid worker-id-string]
-  (hwas/create hive-uuid worker-id-string false)
-  )
+  {:status 200
+   :body (hwas/create hive-uuid worker-id-string false)
+   })
 
 (defn approve
   [hive-uuid worker-id-string]
-  (hwas/create hive-uuid worker-id-string true)
+  {:status 200
+   :body (hwas/create hive-uuid worker-id-string true)}
   )
 
 
 
 (defn pending-approvals
   [hive-uuid]
-  (or (hwas/pending-approvals hive-uuid) []))
+  {:status 200
+   :body (or (hwas/pending-approvals hive-uuid) [])
+  })
 
 (defn show
   "Show the details on the requested hive"
