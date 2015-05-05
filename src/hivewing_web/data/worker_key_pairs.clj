@@ -8,7 +8,7 @@
 
 
 (comment
-  (def kp (crypto/generate-key-pair :key-size (config/key-pair-size)))
+  (def kp (crypto/generate-key-pair :key-size (config/key-pair-length)))
   (def kp-map (crypto/get-key-pair-map kp))
 
   (crypto/encode-base64-as-str (.encode (.getPublic kp)))
@@ -31,14 +31,14 @@
   (let [uuid (ensure-uuid (or (:uuid worker) worker))]
     (first (jdbc/query (config/sql-db) ["SELECT * FROM worker_key_pairs WHERE worker_uuid = ? LIMIT 1" uuid]))))
 
-(defn pk->public-key-file [key-pair]
+(defn kp->public-key-file [key-pair]
   (str "ssh-rsa "
        (:public_key key-pair)
        " "
        (:worker_uuid key-pair)
        "@workers.hivewing.io"))
 
-(defn pk->private-key-file [key-pair]
+(defn kp->private-key-file [key-pair]
   (str "-----BEGIN RSA PRIVATE KEY-----\n"
        (:private_key key-pair)
        "\n-----END RSA PRIVATE KEY-----"))
@@ -47,16 +47,16 @@
   (let [uuid (ensure-uuid (or (:uuid worker) worker))
         record (lookup-for-worker uuid)]
     (if record
-      (pk->public-key-file record)
+      (kp->public-key-file record)
       nil)))
 
 (defn create
   "Create a public key string, given a worker hash and a public key string!"
   [worker]
-   (let [kp     (crypto/generate-key-pair :key-size (config/key-pair-size))
-         priv   (crypto/encode-base64-as-str (.encode (.getPrivate kp)))
 
-         pub    (crypto/encode-base64-as-str (.encode (.getPublic kp)))
+  (let [kp     (crypto/generate-key-pair :key-size (config/key-pair-length))
+        priv   (crypto/encode-base64-as-str (.encode (.getPrivate kp)))
+        pub    (crypto/encode-base64-as-str (.encode (.getPublic kp)))
         ]
       (let [uuid (ensure-uuid (or (:uuid worker) worker))]
         (first (jdbc/insert! (config/sql-db) :worker_key_pairs

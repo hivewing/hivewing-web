@@ -4,5 +4,5 @@
 (defn sql-db []
   (env :jdbc-connection-string))
 
-(defn key-pair-size []
-  (or (env :key-pair-size) 4096))
+(defn key-pair-length []
+  (or (env :key-pair-length) 4096))

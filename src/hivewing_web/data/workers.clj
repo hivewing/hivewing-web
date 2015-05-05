@@ -23,6 +23,29 @@
   (let [uuid (ensure-uuid worker-uuid)]
     (first (jdbc/query (config/sql-db) ["SELECT * FROM workers WHERE uuid = ? LIMIT 1" uuid]))))
 
+(defn set-worker-id-string
+  [worker worker-id-string]
+
+  (let [worker-uuid (ensure-uuid (or (:uuid worker) worker))]
+    (jdbc/update! (config/sql-db)
+                   :workers
+                   {:worker_id_string worker-id-string}
+                   ["uuid = ?" worker-uuid])
+    (lookup worker-uuid)))
+
+(defn join-hive
+  "Join this worker to a given hive"
+  [worker hive]
+
+  (let [worker-uuid (ensure-uuid (or (:uuid worker) worker))
+        hive-uuid (ensure-uuid (or (:uuid hive) hive))]
+    (jdbc/update! (config/sql-db)
+                       :workers
+                       {:hive_uuid hive-uuid}
+                       ["uuid = ?" worker-uuid])
+    (lookup worker-uuid)))
+
+
 (defn create
   "Create a public key string, given a worker hash and a public key string!"
   ([] (create (gen-name)))
