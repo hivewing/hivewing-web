@@ -4,9 +4,12 @@
             [hivewing-web.controllers.workers :as workers]
             [hivewing-web.controllers.hives :as hives]
             [hivewing-web.controllers.base :as base]
+            [hivewing-web.authentication :as authentication]
             [ring.swagger.schema :refer [describe]]
             [ring.swagger.json-schema-dirty]
             [schema.core :as s]
+            [ring.middleware.resource :as res]
+            [ring.middleware.file-info :as finfo]
             [ring.util.http-response :as r])
   )
 
@@ -39,11 +42,16 @@
             {:name "worker-communication" :description "Dealing with how a worker communicates / bootstraps with the server."}
            ])
 
+  ;; Wrap Basic Auth Can Go Around an api/GET* (and probably a context too, to require basic on the
+  ;;   token CRUD commands
   (api/context* "/api/hives" []
+
     (api/GET* "/" []
           :tags ["hives"]
           :summary "List hive uuids"
+          :hive-access hive-access
           :return [java.util.UUID]
+          (println hive-access)
           (hives/index)
     )
     (api/POST* "/" []
@@ -107,7 +115,12 @@
   )
 )
 
-(defroutes application
+(defroutes internals
   (GET "/" [] "Hello World. Hivewing Web. Default Compojure Route")
   api
   (ANY "*" [] {:status 404 :body "Not Found"}))
+
+(def application
+  (-> internals
+      (res/wrap-resource "public")
+      (finfo/wrap-file-info)))

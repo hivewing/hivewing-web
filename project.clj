@@ -12,6 +12,9 @@
                  [metosin/compojure-api "0.20.0" :exclusions [clj-time  org.clojure/tools.reader org.clojure/java.classpath commons-codec]]
                  [metosin/ring-swagger-ui "2.1.1-M2"]
                  [clj-crypto "1.0.2"]
+                 [crypto-password "0.1.3"]
+                 [crypto-random "1.2.0"]
+                 [ring-basic-authentication "1.0.5"]
                 ]
 
   :plugins [[lein-environ "1.0.0"]
