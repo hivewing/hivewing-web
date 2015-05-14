@@ -16,3 +16,9 @@
                at (create user "access-token-1")]
         [at]
         (lookup-by-user user))
+
+(e/expect-let [user (create-user "email")
+               at (create user "access-token-1")
+               deleted (delete! user "access-token-1")]
+        []
+        (lookup-by-user user))

@@ -5,9 +5,10 @@
     [crypto.password.bcrypt :as password]
     [clojure.java.jdbc :as jdbc]
   )
-  )
+)
 
 (comment
+  (create  "cary" "1234carycary")
   )
 
 (defn lookup-by-email
@@ -35,7 +36,7 @@
       nil)))
 
 (def password-regex
-  #"^(?=.{6,32}$)(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9$!_-]).*")
+  #"^(?=.{6,32}$)(?=.*[A-Za-z])(?=.*[0-9$!_-]).*")
 
 (defn create
   "Create a new user (:email, :password)"
