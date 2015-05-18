@@ -3,6 +3,7 @@
     [compojure.api.sweet :as api ]
     [compojure.core :refer :all]
     [hivewing-web.authentication :as authentication]
+    [ring.middleware.logger :as logger]
     [hivewing-web.controllers
        [workers :as workers]
        [hives :as hives]
@@ -71,10 +72,10 @@
         (api/POST* "/" {:as req}
             :tags ["tokens"]
             :summary "Create a new access token"
-            :body-params [token-name :- (ring.swagger.schema/describe access-tokens/name-regex "Token name (must be unique to the user)")]
+            :body-params [name :- (ring.swagger.schema/describe access-tokens/name-regex "Token name (must be unique to the user)")]
             :return AccessToken
           (let [user (:basic-authentication req)
-                token (access-tokens/create user token-name)]
+                token (access-tokens/create user name)]
             (r/ok token)))
 
         (api/DELETE* "/:token-name" {:as req}
@@ -167,6 +168,7 @@
   (ANY "*" [] {:status 404 :body "Not Found"}))
 
 (def application
-  (-> internals
+  (logger/wrap-with-logger
+    (-> internals
       (res/wrap-resource "public")
-      (finfo/wrap-file-info)))
+      (finfo/wrap-file-info))))

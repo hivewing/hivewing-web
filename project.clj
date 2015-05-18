@@ -14,6 +14,7 @@
                  [clj-crypto "1.0.2"]
                  [crypto-password "0.1.3"]
                  [crypto-random "1.2.0"]
+                 [ring.middleware.logger "0.5.0"]
                  [ring-basic-authentication "1.0.5"]
                 ]
 
