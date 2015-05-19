@@ -8,7 +8,7 @@
   {:expectations-options :before-run}
   []
   (println "Cleaning Up Database!")
-  (jdbc/execute! (config/sql-db) ["TRUNCATE TABLE workers,worker_key_pairs,hive_worker_approvals, hives, users, access_tokens "])
+  (jdbc/execute! (config/sql-db) ["TRUNCATE TABLE workers,worker_key_pairs,hive_worker_approvals, hives, users, access_tokens, hive_access "])
   )
 
 (defn in-context

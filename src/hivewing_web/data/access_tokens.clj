@@ -9,6 +9,9 @@
   )
 
 (comment
+  (lookup "07pUQ1YaeemoTQPrPJjdLkju6P/TsLhISoV+hwJNzXxzIWraw2m2LSQIhtYCWmNkgy74uaHWjMz0GxhkJUiVjQ==" )
+
+  (count (rand/base64 64))
   (create {:uuid
            "2e748e96-f99e-11e4-9aa0-0242ac110019"
            } "token-1")

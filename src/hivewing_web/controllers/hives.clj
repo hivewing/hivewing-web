@@ -1,9 +1,11 @@
 (ns hivewing-web.controllers.hives
   (:require
     [hivewing-web.data.workers :as ws]
+    [hivewing-web.data.hive-access :as hive-access]
     [hivewing-web.data.worker-key-pairs :as wkps]
     [hivewing-web.data.hives :as hs]
     [hivewing-web.data.hive-worker-approvals :as hwas]
+    [hivewing-web.config :as config]
     [hivewing-web.controllers.base :refer :all]
     [taoensso.timbre :as logger]
     [hivewing-web.data.worker-key-pairs :as wkps]
@@ -14,7 +16,7 @@
   (def hive-uuid (:uuid hive))
   )
 
-(defn create-and-return-auth-package
+(defn- create-and-return-auth-package
   "Create a worker, get the auth package and return"
   [hive-uuid worker-id-string]
   (let [worker (hs/create-worker hive-uuid worker-id-string)
@@ -32,21 +34,21 @@
              :private_key (wkps/kp->private-key-file worker-key-pair)}
      }))
 
-(defn rejected-join [hive-uuid worker-id-string]
+(defn- rejected-join [hive-uuid worker-id-string]
   (hwas/touch hive-uuid worker-id-string)
   {:status 403
    :headers {"Content-Type" "text/plain"}
    :body "Your application for membership has been DENIED. Don't ask again"}
 )
 
-(defn pending-join
+(defn- pending-join
   [hive-uuid worker-id-string]
   (hwas/touch hive-uuid worker-id-string)
   {:status 409
    :headers {"Content-Type" "text/plain"}
    :body "Your application is pending. Please check back later"})
 
-(defn create-pending-join
+(defn- create-pending-join
   [hive-uuid worker-id-string]
   (hwas/create hive-uuid worker-id-string)
   (pending-join hive-uuid worker-id-string))
@@ -74,47 +76,61 @@
 
 (defn index
   "Show all the hive uuids"
-  []
+  [access]
   {:status 200
-   :body (map :uuid (hs/list-hives))
+   :body (map :uuid (hs/list-hives access))
    })
 
 (defn create
-  [hive-name]
-   (if-let [hive (hs/create hive-name)]
-    {:status 200
-      :body hive}
-    {:status 404
-      :body "No hive found"}))
+  [hive-name access]
+  (if (> (count (:hives access)) config/max-number-of-hives-per-user)
+    {:status 403 :body "Would exceed maximum number of hives"}
+    (if-let [hive (hs/create hive-name)]
+      (do
+        ;; Add hive access
+        (hive-access/enable-access (:user access) hive)
+        {:status 200
+         :body hive})
+      {:status 404
+       :body "No hive found"})))
 
 (defn reject
-  [hive-uuid worker-id-string]
+  [hive-uuid worker-id-string access]
+  (if (some #{(str hive-uuid)} (map str (:hives access)))
   {:status 200
    :body (hwas/create hive-uuid worker-id-string false)
-   })
+   }
+  {:status 404
+   :body "No hive found"}))
 
 (defn approve
-  [hive-uuid worker-id-string]
+  [hive-uuid worker-id-string access]
+  (if (some #{(str hive-uuid)} (map str (:hives access)))
   {:status 200
-   :body (hwas/create hive-uuid worker-id-string true)}
-  )
-
-
+   :body (hwas/create hive-uuid worker-id-string true) }
+  {:status 404
+   :body "No hive found"}))
 
 (defn pending-approvals
-  [hive-uuid]
-  {:status 200
-   :body (or (hwas/pending-approvals hive-uuid) [])
-  })
+  [hive-uuid access]
+  (if (some #{(str hive-uuid)} (map str (:hives access)))
+    {:status 200
+     :body (or (hwas/pending-approvals hive-uuid) []) }
+    {:status 404
+     :body "Hive not found" }
+  ))
 
 (defn show
   "Show the details on the requested hive"
-  [hive-uuid]
-  (let [hive (hs/lookup hive-uuid)]
-    (if hive
+  [hive-uuid access]
+  (let [not-found {:status 404
+                   :headers {"Content-Type" "text/plain"}
+                   :body (str "Hive " hive-uuid " not found")
+                  }]
+
+  (if (some #{(str hive-uuid)} (map str (:hives access)))
+    (if-let [hive (hs/lookup hive-uuid)]
       {:status 200
        :body hive}
-      {:status 404
-       :headers {"Content-Type" "text/plain"}
-       :body (str "Hive " hive-uuid " not found")
-      })))
+      not-found)
+    not-found)))

@@ -16,6 +16,7 @@
                  [crypto-random "1.2.0"]
                  [ring.middleware.logger "0.5.0"]
                  [ring-basic-authentication "1.0.5"]
+                 [yesql "0.4.0"]
                 ]
 
   :plugins [[lein-environ "1.0.0"]

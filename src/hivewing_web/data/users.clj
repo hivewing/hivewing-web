@@ -8,8 +8,27 @@
 )
 
 (comment
-  (create  "cary" "1234carycary")
-  )
+  (do
+    (require 'hivewing-web.data.access-tokens)
+    (require 'hivewing-web.data.hives)
+    (require 'hivewing-web.data.hive-access)
+    (require 'clj-time.core)
+
+    (def user (create  (str "cary-api-test" (clj-time.core/now)) "1234carycary"))
+    (def hive (hivewing-web.data.hives/create))
+
+    (hivewing-web.data.hive-access/enable-access user hive)
+
+    (def hive (hivewing-web.data.hives/create))
+    (hivewing-web.data.hive-access/enable-access user hive)
+
+    (def hive (hivewing-web.data.hives/create))
+    (hivewing-web.data.hive-access/enable-access user hive)
+
+    (def at (hivewing-web.data.access-tokens/create user "test-token"))
+    (def tok (:token at))
+    (println tok)
+  ))
 
 (defn lookup-by-email
   "Find the user by their email address"

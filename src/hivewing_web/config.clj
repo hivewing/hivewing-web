@@ -6,3 +6,5 @@
 
 (defn key-pair-length []
   (or (env :key-pair-length) 4096))
+
+(def max-number-of-hives-per-user 100)

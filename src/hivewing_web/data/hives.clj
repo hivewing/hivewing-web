@@ -4,17 +4,23 @@
     [hivewing-web.data.core :refer :all]
     [hivewing-web.data.workers :as workers]
     [hivewing-web.data.namer :refer :all]
+    [yesql.core :refer [defqueries]]
     [clojure.java.jdbc :as jdbc]
             ))
+(comment
+  (def  hive (create))
+  )
+(defqueries "hivewing_web/sql/hives.sql")
 
-(defn list-hives []
-  (jdbc/query (config/sql-db) ["SELECT * FROM hives LIMIT 100"]))
+(defn list-hives [ha]
+  (let [uuids (:hives ha)]
+    (list-hives-with-scope (config/sql-db) (map ensure-uuid uuids))))
 
 (defn lookup
   "Lookup a hive by uuid"
   [hive-uuid]
   (let [uuid (ensure-uuid hive-uuid)]
-    (first (jdbc/query (config/sql-db) ["SELECT * FROM hives WHERE uuid = ? LIMIT 1" uuid]))))
+    (first (lookup-hives-with-scope (config/sql-db) uuid))))
 
 (defn create-worker
   [hive-uuid worker-id-string]
