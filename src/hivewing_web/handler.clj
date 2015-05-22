@@ -178,8 +178,9 @@
             :path-params [hive-uuid        :- (ring.swagger.schema/describe java.util.UUID "Hive uuid identifying the hive you are trying to get info on")]
             :query-params [worker-id-string :- (ring.swagger.schema/describe String "Plain-text identifier string for this worker")]
             :summary "Approve a hive to accept worker identified by worker-id-string"
+            :hive-access hive-access
             :return HiveWorkerApproval
-            (hives/approve hive-uuid worker-id-string)
+            (hives/approve hive-uuid worker-id-string hive-access)
        )
 
        (api/POST* "/:hive-uuid/joins/reject" []
@@ -187,14 +188,18 @@
             :path-params [hive-uuid        :- (ring.swagger.schema/describe java.util.UUID "Hive uuid identifying the hive you are trying to get info on")]
             :query-params [worker-id-string :- (ring.swagger.schema/describe String "Plain-text identifier string for this worker")]
             :summary "Reject a worker identified by worker-id-string"
+            :hive-access hive-access
             :return HiveWorkerApproval
-            (hives/reject hive-uuid worker-id-string)
+            (hives/reject hive-uuid worker-id-string hive-access)
        )
     )
 
   (api/context* "/api/workers" []
     (api/GET* "/:worker-uuid/public-key" []
           :tags ["workers"]
+          ;; NO HIVE ACCESS RESTRICTIONS
+          ;;  TIS IS A PUBLIC METHOD!!
+          ;; :hive-access hive-access
           :path-params [worker-uuid :- (ring.swagger.schema/describe java.util.UUID "Uuid of the worker")]
           :summary "Returns the public key for a worker.  This is the public key the worker wants to use to connect to other servers via SSH"
           (workers/public-keys worker-uuid)
